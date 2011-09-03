@@ -1,0 +1,62 @@
+/*1314657633,176833978*/
+
+.fbxPhoto .fbPhotoImageStage{width:100%;user-select:none}
+.fbxPhoto .fbPhotoImageStage .stageContainer,.fbxPhoto .fbPhotoImageStage .buttonsContainer{width:100%}
+.fbxPhoto .fbPhotoImageStage .fbPhotoPageError{text-align:left}
+.fbxPhoto .fbPhotoImageStage .fbPhotosPhotoButtons{bottom:30px}
+.fbxPhoto .fbPhotoImageStage .stageContainer{background-color:#f6f6f6;height:453px}
+.imageLoading .fbPhotoImageStage .stageContainer{background:#f6f6f6 url(http://static.ak.fbcdn.net/rsrc.php/v1/y9/r/jKEcVPZFk-2.gif) no-repeat center center}
+.fbxPhoto .fbPhotoImageStage .stageWrapper{display:inline-block;position:relative}
+.fbxPhoto .fbPhotoImage img{display:inline-block;height:auto;image-rendering:optimizeQuality;vertical-align:middle;width:auto}
+.taggingMode .fbPhotoImage{cursor:crosshair}
+.fbxPhoto .fbPhotoImageStage .stageActions{cursor:pointer;height:0;left:0;position:absolute;top:0;width:0}
+.fbxPhoto .fbPhotoImageStage .stageButtons{position:relative;text-align:center;width:100%}
+.dataLoading .fbPhotoPageInfo .fbPhotoUfiCol *,.dataLoading .fbPhotoPageInfo .fbPhotoDataCol *{display:none}
+.draggingMode{user-select:none}
+.photocrop .bg,.photocrop .guard,.photocrop .wrapper,.photocrop .wrapper *{position:absolute}
+.photocrop .bg{background:#000;opacity:.6}
+.photocrop .guard{height:100%;left:0;top:0;width:100%}
+.photocrop .highlight{left:0;top:0}
+.photocrop .viewport{cursor:move}
+.photocrop .viewport div{background-color:#d8dfea;height:10px;opacity:.5;width:10px}
+.photocrop .viewport .nw{cursor:nw-resize;left:-5px;top:-5px}
+.photocrop .viewport .ne{cursor:ne-resize;right:-5px;top:-5px}
+.photocrop .viewport .se{cursor:se-resize;bottom:-5px;right:-5px}
+.photocrop .viewport .sw{cursor:sw-resize;bottom:-5px;left:-5px}
+.fbPhotosSideColumn{padding-top:57px}
+.fbPhotosSideColumnShort{padding-top:44px}
+.fbPhotosSideColumn #sidebar_ads{padding-top:0}
+.fbPhotoTagger{border:1px solid #000;cursor:crosshair;display:none;left:0;position:absolute;text-align:left;top:0;z-index:103}
+.taggingMode .fbPhotoTagger{display:block}
+.fbPhotoTagger .faceBox{border:4px solid #ccc;border-color:rgba(255, 255, 255, .8);height:90px;position:relative;width:90px}
+.fbPhotoTagger .typeaheadWrapper{cursor:default;left:50%;position:absolute;top:100%}
+.fbPhotoTagger .typeaheadContainer{left:-50%;position:relative;top:4px}
+.fbPhotoTagger .arrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/RoUXfyzjA4r.png);background-repeat:no-repeat;background-position:-141px -392px;height:4px}
+.fbPhotoTagger .typeaheadLabel{color:#fff}
+.fbPhotoTagger .typeaheadBackdrop,.fbPhotoTagger .uiTypeaheadView{background:#000;padding:4px}
+.fbPhotoTagger .uiTypeaheadView{left:-4px;padding-top:0}
+.fbPhotoTagger .photoTagTypeahead,.fbPhotoTagger .photoTagTypeahead .wrap,.fbPhotoTagger .uiTypeaheadView .compact{border-color:#333}
+.fbPhotoTagger .uiTypeaheadView .compact{border-bottom-width:1px;margin-top:4px}
+.fbPhotoTagger .uiTypeaheadView .compact .hintText{cursor:default;height:14px;min-height:0;padding-left:6px}
+.fbPhotoTagger .photoTagTokenizer{width:212px}
+.fbPhotoTagger .tokenarea{display:none}
+.fbxPhoto .fbPhotoTagger .arrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yf/r/PfBgtiydy5U.gif);background-repeat:no-repeat;background-position:top center;height:7px;position:absolute;top:-5px;width:100%;z-index:1}
+.fbxPhoto .fbPhotoTagger .typeaheadLabel{display:none}
+.fbxPhoto .fbPhotoTagger .typeaheadBackdrop,.fbxPhoto .fbPhotoTagger .uiTypeaheadView{background:#fff;border:#333 solid 1px}
+.fbxPhoto .fbPhotoTagger .typeaheadBackdrop{margin-top:6px}
+.fbxPhoto .fbPhotoTagger .uiTypeaheadView{border-top:0;left:-5px;margin-top:2px}
+.fbxPhoto .fbPhotoTagger .photoTagTypeahead,.fbxPhoto .fbPhotoTagger .photoTagTypeahead .wrap{border-color:#ccc}
+.fbxPhoto .fbPhotoTagger .uiTypeaheadView .compact{border:0}
+.fbPrivacyAudienceIndicator .indicator{color:#333}
+.fbPrivacyAudienceIndicator .audienceIcon{margin-left:-18px}
+.fbPrivacyAudienceIndicatorGroupMargin .indicator{margin-left:1px}
+.fbPrivacyAudienceIndicatorGroupMargin .uiTooltip .uiTooltipWrap{margin-left:-8px}
+.fbPrivacyAudienceIndicatorGroupMargin .uiTooltip{margin-left:-1px}
+.uiButtonPair .pairItem{float:left;position:relative;z-index:1}
+.uiButtonPair .lastInPair{margin-left:-1px}
+.pairOverlay .pairDivider{background-color:#aaa;border-color:#fff;border-color:transparent;border-style:solid none;border-width:2px;bottom:1px;position:absolute;top:1px;width:1px;z-index:1}
+.pairOverlay .pairItem .uiButton{position:relative}
+.pairOverlay .firstInPair .uiButton{border-radius:2px 0 0 2px}
+.pairOverlay .lastInPair .uiButton{border-radius:0 2px 2px 0}
+
+#bootloader_kIxg5 { height: 42px; }

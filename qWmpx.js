@@ -1,0 +1,1519 @@
+if (window.CavalryLogger) {
+    CavalryLogger.start_js([ "qWmpx" ]);
+}
+
+function photos_viewer_version() {
+    if (CSS.hasClass(document.documentElement, "theaterMode")) {
+        if (window.Env) {
+            if (Env.theater_ver === "2") {
+                return PhotosConst.VIEWER_SNOWBOX;
+            } else return PhotosConst.VIEWER_THEATER;
+        } else if (ge("fbPhotoSnowbox") !== null) {
+            return PhotosConst.VIEWER_SNOWBOX;
+        } else return PhotosConst.VIEWER_THEATER;
+    } else return PhotosConst.VIEWER_PERMALINK;
+}
+
+function PhotoTagger(a) {
+    this.version = a;
+    PhotoTagger.instances[a] = this;
+}
+
+PhotoTagger.instances = {};
+
+PhotoTagger.ACTIVATE_TAGGING = "PhotoTagger.ACTIVATE_TAGGING";
+
+PhotoTagger.getInstance = function(a) {
+    return PhotoTagger.instances[a];
+};
+
+PhotoTagger.getCurrentInstance = function() {
+    return PhotoTagger.getInstance(photos_viewer_version());
+};
+
+copy_properties(PhotoTagger.prototype, {
+    TAG_BOX_SIZE: 100,
+    datasources: {},
+    photoData: {},
+    elemNames: {
+        1: {
+            tagger: "div.theaterTagger",
+            addTagLink: "div.fbPhotosTheaterActions",
+            overlayActions: "div.fbPhotoTheaterButtons",
+            tagAction: "fbPhotosTheaterActionsTag",
+            image: "div.stage img"
+        },
+        2: {
+            tagger: "div.snowboxTagger",
+            addTagLink: "div.fbPhotosPhotoActions",
+            overlayActions: "div.fbPhotosPhotoButtons",
+            tagAction: "fbPhotosPhotoActionsTag",
+            image: "div.stage img"
+        }
+    },
+    init: function(b, c) {
+        this.root = b;
+        this.tokenizer = c;
+        this._qn = null;
+        this.typeahead = c.getTypeahead();
+        this.clickState = DOM.find(this.root, "div.stageActions");
+        this.tagger = DOM.find(this.clickState, this.elemNames[this.version].tagger);
+        this.faceBox = DOM.find(this.tagger, "div.faceBox");
+        this.addTagLink = DOM.find(this.root, this.elemNames[this.version].addTagLink);
+        this.overlayActions = DOM.find(this.root, this.elemNames[this.version].overlayActions);
+        this.setupHandlers();
+        (new AsyncRequest).setURI("/ajax/photos/theater/tags_init.php").setData({
+            owner: this.photoData.owner
+        }).setOption("retries", 1).setHandler(function(d) {
+            this.typeahead.getView().setSuggestions(d.getPayload().taggees);
+        }.bind(this)).send();
+        var a = this.typeahead.subscribe("activity", function(d, e) {
+            if (e && !e.activity) {
+                this.updateWithSuggestions();
+                this.typeahead.unsubscribe(a);
+                this.typeahead.subscribe("focus", this.updateWithSuggestions.bind(this));
+                this.tokenizer.subscribe("removeToken", this.updateWithSuggestions.bind(this));
+                this.tokenizer.subscribe("addToken", this.addSuggestion.bind(this));
+                this.typeahead.subscribe("respond", function(f, g) {
+                    if (g && !g.results.length) this.updateWithSuggestions();
+                }.bind(this));
+            }
+        }.bind(this));
+        this.setDataSource(this.typeahead.getData());
+        return this;
+    },
+    setupHandlers: function() {
+        this.handlers = [ Event.listen(this.clickState, "click", this.addTag.bind(this)), Event.listen(window, "resize", this.hideTagger.bind(this)), Event.listen(this.addTagLink, "click", this.checkActions.bind(this)), Event.listen(this.overlayActions, "click", this.checkActions.bind(this)) ];
+        if (this.version == PhotosConst.VIEWER_THEATER) {
+            this.subscriptions = [ Arbiter.subscribe(PhotoTheater.PAGE, this.restartTagging.bind(this)), Arbiter.subscribe(PhotoTheater.DATA_CHANGE, this.setPhotoData.bind(this)), Arbiter.subscribe(PhotoTheater.CLOSE, this.deactivateTagging.bind(this)) ];
+        } else if (this.version == PhotosConst.VIEWER_SNOWBOX) this.subscriptions = [ Arbiter.subscribe(PhotoSnowbox.PAGE, this.restartTagging.bind(this)), Arbiter.subscribe(PhotoSnowbox.DATA_CHANGE, this.setPhotoData.bind(this)), Arbiter.subscribe(PhotoSnowbox.CLOSE, this.deactivateTagging.bind(this)) ];
+        this.tokenizer.subscribe("addToken", this.saveTag.bind(this));
+        this.tokenizer.subscribe("removeToken", this.removeTag.bind(this));
+        this.tokenizer.subscribe("markTagAsSpam", this.markTagAsSpam.bind(this));
+    },
+    getTaggingSource: function() {
+        return PhotosConst.inCenterStage(this.version) ? "center_stage" : null;
+    },
+    updateWithSuggestions: function(a, c) {
+        var e = this.typeahead.getData().buildUids(" ", this.typeahead.getView().getSuggestions(), this.typeahead.getCore().getExclusions());
+        if (!e.length) return;
+        var d = this.typeahead.getData().respond("", e);
+        for (var b = 0; b < d.length; b++) d[b].index = -1e3 + b;
+    },
+    addSuggestion: function(a, b) {
+        var c = b.info && b.info.uid;
+        if (c) this.typeahead.getView().addSuggestion(c);
+    },
+    setQueueName: function(a) {
+        this._qn = a;
+        return this;
+    },
+    _sendWaterfallLogSignal: function(a) {
+        PhotosTaggingWaterfall.sendSignal({
+            qn: this._qn,
+            source: this.getTaggingSource(),
+            step: a,
+            pid: this.photoData.pid
+        });
+    },
+    _bumpQueueName: function() {
+        if (this._qn) this._qn += 1;
+    },
+    activateTagging: function() {
+        Arbiter.inform(PhotoTagger.ACTIVATE_TAGGING);
+        if (this.getDataSource()) {
+            this.dataSourceFetched(this.getDataSource());
+        } else (new AsyncRequest("/ajax/photos/theater/fetch_datasource.php")).setData({
+            fbid: this.photoData.fbid,
+            version: this.version
+        }).send();
+    },
+    restartTagging: function() {
+        this.hideTagger();
+        if (this.taggingMode === true) this.activateTagging();
+    },
+    getDataSource: function() {
+        return this.datasources[this.getDataSourceKey()];
+    },
+    getDataSourceKey: function() {
+        if (this.photoData.ownertype == "user" && !this.photoData.obj_id) return "friends";
+        return this.photoData.obj_id || this.photoData.owner;
+    },
+    setDataSource: function(a) {
+        if (this.typeahead.getData() != a) this.typeahead.swapData(a);
+        this.datasources[this.getDataSourceKey()] = a;
+    },
+    dataSourceFetched: function(a) {
+        this.taggingMode = true;
+        CSS.addClass(this.root, "taggingMode");
+        this._bumpQueueName();
+        this._sendWaterfallLogSignal(PhotosTaggingWaterfall.BEGIN);
+        this.setDataSource(a);
+    },
+    deactivateTagging: function() {
+        if (this.taggingMode === true) this._sendWaterfallLogSignal(PhotosTaggingWaterfall.FINISH);
+        this.taggingMode = false;
+        this.hideTagger();
+        CSS.removeClass(this.root, "taggingMode");
+    },
+    checkActions: function(event) {
+        var a = event.getTarget();
+        if (Parent.byClass(a, this.elemNames[this.version].tagAction)) this.taggingMode ? this.deactivateTagging() : this.activateTagging();
+    },
+    hideTagger: function() {
+        CSS.hide(this.tagger);
+    },
+    showTagger: function() {
+        CSS.show(this.tagger);
+        var a = DOM.find(this.tagger, "input.textInput");
+        Input.reset(a);
+        a.focus();
+        this.updateWithSuggestions();
+    },
+    addTag: function(event) {
+        var l = event.getTarget();
+        if (!this.taggingMode || Parent.byClass(l, "fbPhotosPhotoButtons") || Parent.byClass(l, "photoTagTypeahead")) return;
+        var h = DOM.find(this.root, this.elemNames[this.version].image);
+        var b = Vector2.getEventPosition(event);
+        var a = {
+            x: this.TAG_BOX_SIZE / 2,
+            y: this.TAG_BOX_SIZE / 2
+        };
+        var j = Vector2.getElementPosition(h);
+        var i = Vector2.getElementDimensions(h);
+        var k = b.sub(j);
+        var d = new Vector2(event.offsetX || event.layerX, event.offsetY || event.layerY, "document");
+        for (var e in d) {
+            if (b[e] < j[e] || b[e] > j[e] + i[e]) {
+                this.hideTagger();
+                return;
+            }
+            if (k[e] < this.TAG_BOX_SIZE / 2) {
+                a[e] = k[e];
+            } else if (i[e] < k[e] + this.TAG_BOX_SIZE / 2) a[e] = this.TAG_BOX_SIZE - (i[e] - k[e]);
+        }
+        if (this.onRelativePositionTarget(l)) {
+            var g = 1;
+            if (ua.ie()) g = 5;
+            var c = {
+                x: a.x - d.x - g,
+                y: a.y - d.y - g
+            };
+            var m = this.getRelativeTargetPos(l);
+            var f = new Vector2(m.left.substr(0, m.left.length - 2) - 0, m.top.substr(0, m.top.length - 2) - 0, "document");
+            f.sub(c.x, c.y).setElementPosition(this.tagger);
+        } else d.sub(a.x, a.y).setElementPosition(this.tagger);
+        this.showTagger();
+        this.clickPoint = {
+            x: k.x / i.x,
+            y: k.y / i.y
+        };
+        this._sendWaterfallLogSignal(PhotosTaggingWaterfall.TAG_FACE);
+    },
+    onRelativePositionTarget: function(a) {
+        return a == this.faceBox;
+    },
+    getRelativeTargetPos: function(a) {
+        return this.tagger.style;
+    },
+    saveTag: function(a, b) {
+        (new AsyncRequest).setURI("/ajax/photo_tagging_ajax.php").setData({
+            cs_ver: this.version,
+            pid: this.photoData.pid,
+            id: this.photoData.owner,
+            subject: b.isFreeform() ? "" : b.getValue(),
+            name: b.getText(),
+            action: "add",
+            x: this.clickPoint.x * 100,
+            y: this.clickPoint.y * 100,
+            source: this.getTaggingSource(),
+            qn: this._qn,
+            position: this.getPosition()
+        }).setAllowCrossPageTransition(true).setHandler(this.tagsChangeHandler.bind(this)).setErrorHandler(this.checkError.bind(this, b)).send();
+        this.hideTagger();
+    },
+    getPosition: function() {
+        var a = this.getPhotoViewerObj();
+        return a && a.position;
+    },
+    getPhotoViewerObj: function() {
+        if (this.version == PhotosConst.VIEWER_THEATER) {
+            return window.PhotoTheater;
+        } else if (this.version == PhotosConst.VIEWER_SNOWBOX) return window.PhotoSnowbox;
+        return null;
+    },
+    tagsChangeHandler: function(b) {
+        var a = this.getPhotoViewerObj();
+        if (a && a.isOpen) a.saveTagComplete(b);
+    },
+    checkError: function(b, a) {
+        if (a.getPayload() && a.getPayload().clear_tag) {
+            b.already_untagged = true;
+            this.tokenizer.removeToken(b);
+        }
+        ErrorDialog.showAsyncError(a);
+    },
+    removeTag: function(a, c) {
+        if (c.already_untagged) return;
+        var b = "remove";
+        if (DOM.scry(c.element, "a.pending")[0]) b = "retract";
+        if (c.blockUser) b = "remove_block";
+        (new AsyncRequest).setURI("/ajax/photo_tagging_ajax.php").setData({
+            cs_ver: this.version,
+            pid: this.photoData.pid,
+            id: this.photoData.owner,
+            subject: c.isFreeform() ? "" : c.getInfo().uid,
+            position: this.getPosition(),
+            name: c.getInfo().text,
+            action: b,
+            source: this.getTaggingSource()
+        }).setHandler(this.tagsChangeHandler.bind(this)).setAllowCrossPageTransition(true).send();
+    },
+    removeTagByID: function(b) {
+        var c = this.tokenizer.tokens;
+        for (var a = 0; a < c.length; a++) if (c[a].info.uid == b) return this.removeTag(null, c[a]);
+    },
+    setPhotoData: function(a, b) {
+        this.photoData = b;
+        return this;
+    },
+    markTagAsSpam: function(a, b) {
+        (new AsyncRequest).setURI("/ajax/photo_tagging_ajax.php").setData({
+            cs_ver: this.version,
+            pid: this.photoData.pid,
+            id: this.photoData.owner,
+            subject: b,
+            action: "mark_as_spam",
+            source: this.getTaggingSource()
+        }).send();
+    }
+});
+
+function PhotoSnowboxLog() {}
+
+copy_properties(PhotoSnowboxLog, {
+    UNKNOWN: 0,
+    ESC: 1,
+    X: 2,
+    OUTSIDE: 3,
+    UNLOAD: 4,
+    NAVIGATE: 5,
+    AGGREGATE: 6,
+    AGGREGATION_COUNT: 20,
+    set: null,
+    stopWatch: null,
+    time: null,
+    views: 0,
+    fbidList: [],
+    setSize: 0,
+    loadedCount: 0,
+    waitForLoadCount: 0,
+    width: 0,
+    height: 0,
+    first: false,
+    last: false,
+    logIds: false,
+    initLogging: function() {
+        this.set = null;
+        this.time = new Date;
+        this.views = 0;
+        this.first = true;
+        this.last = false;
+        this.logIds = false;
+        var a = Vector2.getViewportDimensions();
+        this.width = a.x;
+        this.height = a.y;
+    },
+    setLogFbids: function(a) {
+        this.logIds = a;
+    },
+    setPhotoSet: function(a) {
+        this.set = a;
+    },
+    setStopWatchData: function(a) {
+        this.stopWatch = [ a.begin, a.showFrame, a.showNormal, a.fetchInit, a.showUfi, a.secondBatch ];
+    },
+    addPhotoView: function(a) {
+        if (this.logIds && this.views >= this.AGGREGATION_COUNT) this.logPhotoViews(this.AGGREGATE);
+        this.views++;
+        if (a) this.fbidList.push([ a.fbid, a.owner, +(new Date) ]);
+    },
+    logPhotoViews: function(a) {
+        if (this.views) {
+            var c = Vector2.getViewportDimensions();
+            if (a != this.AGGREGATE) this.last = true;
+            var d = keys(Object.from(this.fbidList)).length;
+            var b = {
+                set: this.set,
+                time: new Date - this.time,
+                views: this.views,
+                fbids: this.logIds ? this.fbidList : [],
+                setSize: this.setSize,
+                loadedCount: this.loadedCount,
+                waitForLoadCount: this.waitForLoadCount,
+                uniqueViews: d,
+                width: c.x || this.width,
+                height: c.y || this.height,
+                first: this.first,
+                last: this.last,
+                perf: this.stopWatch,
+                close: a ? a : this.UNKNOWN
+            };
+            (new AsyncRequest).setURI("/ajax/photos/snowbox/session_logging.php").setAllowCrossPageTransition(true).setOption("asynchronous", a != PhotoSnowboxLog.UNLOAD).setOption("suppressCacheInvalidation", true).setOption("suppressErrorHandlerWarning", true).setData(b).send();
+            this.views = 0;
+            this.fbidList = [];
+            this.first = false;
+            if (this.last) {
+                this.set = null;
+                this.logIds = false;
+            }
+        }
+    },
+    setLoadedPhotosCount: function(a) {
+        this.loadedCount = a;
+    },
+    setSetSize: function(a) {
+        this.setSize = a;
+    },
+    setWaitForLoadCount: function(a) {
+        this.waitForLoadCount = a;
+    }
+});
+
+onunloadRegister(function() {
+    PhotoSnowboxLog.logPhotoViews(PhotoSnowboxLog.UNLOAD);
+});
+
+function PhotoStreamCache() {}
+
+copy_properties(PhotoStreamCache, {
+    ERROR: "error",
+    HTML: "html",
+    IMAGE_DATA: "image",
+    EXTRA: "extra",
+    PRELOAD_BUFFER: 5,
+    BUFFER_SIZE: 4,
+    FULL_BUCKET_SIZE: 15,
+    ERROR_ID: -1
+});
+
+copy_properties(PhotoStreamCache.prototype, {
+    init: function(a) {
+        this.version = a;
+        this.bufferSize = PhotoStreamCache.BUFFER_SIZE;
+        this.fullBucketSize = PhotoStreamCache.FULL_BUCKET_SIZE;
+        this.initError = false;
+        this.isActive = true;
+        this.leftLock = false;
+        this.rightLock = false;
+        this.reset();
+    },
+    reset: function() {
+        this.cache = {
+            image: {},
+            extra: {},
+            html: {}
+        };
+        this.fbidList = [];
+        this.loaded = false;
+        this.allLoaded = false;
+        this.permalinkMap = {};
+        this.position = 0;
+        this.totalCount = null;
+        this.firstCursor = null;
+        this.firstCursorIndex = null;
+    },
+    destroy: function() {
+        this.reset();
+        this.isActive = false;
+    },
+    isLoaded: function() {
+        return this.loaded;
+    },
+    canPage: function() {
+        if (this.totalCount !== null) return this.totalCount > 1;
+        return this.getLength() > 1;
+    },
+    errorInCurrent: function() {
+        if (this.initError) {
+            return true;
+        } else if (!this.isLoaded()) return false;
+        return this.checkErrorAt(this.getCursor());
+    },
+    getLength: function() {
+        return this.fbidList.length;
+    },
+    getPhotoSet: function() {
+        return this.photoSetQuery.set;
+    },
+    getCurrentImageData: function() {
+        return this.getImageData(this.getCursor());
+    },
+    getImageData: function(a) {
+        return this.getCacheContent(a, PhotoStreamCache.IMAGE_DATA);
+    },
+    getCurrentHtml: function() {
+        return this.getCacheContent(this.getCursor(), PhotoStreamCache.HTML);
+    },
+    getCurrentExtraData: function() {
+        return this.getCacheContent(this.getCursor(), PhotoStreamCache.EXTRA);
+    },
+    getCacheContent: function(a, b) {
+        if (!a || a === PhotoStreamCache.ERROR_ID) return null;
+        return this.cache[b][a];
+    },
+    getCursorPos: function() {
+        return this.position;
+    },
+    getCursor: function() {
+        if (this.position >= 0 && this.position < this.getLength()) return this.fbidList[this.position];
+        return null;
+    },
+    getCursorForURI: function(a) {
+        return this.permalinkMap[a];
+    },
+    calculatePositionForMovement: function(a) {
+        var b = this.position + a;
+        if (this.allLoaded) {
+            var c = this.getLength();
+            b = (c + b % c) % c;
+        }
+        return b;
+    },
+    isValidMovement: function(a) {
+        if (!this.isLoaded() || !this.canPage()) return false;
+        var b = this.calculatePositionForMovement(a);
+        return this.getCursor() > 0 || b >= 0 && b < this.getLength();
+    },
+    moveCursor: function(a) {
+        if (!this.isValidMovement(a)) return;
+        this.position = this.calculatePositionForMovement(a);
+        if (a !== 0) this.loadMoreIfNeccessary(a > 0);
+    },
+    checkErrorAt: function(a) {
+        if (!this.isLoaded()) return false;
+        if (a === PhotoStreamCache.ERROR_ID) return true;
+        return false;
+    },
+    getRelativeMovement: function(a) {
+        for (var b = 0; b < this.getLength(); b++) if (this.fbidList[b] === a) return b - this.position;
+        return null;
+    },
+    preloadImages: function() {
+        var e, c;
+        var f = this.getLength();
+        var b = this.cache.image;
+        var a = PhotoStreamCache.PRELOAD_BUFFER;
+        if (f > a * 2) {
+            e = (this.position + f - a % f) % f;
+            c = (this.position + a) % f;
+        } else {
+            e = 0;
+            c = f - 1;
+        }
+        while (e != c) {
+            var d = this.fbidList[e];
+            if (b[d] && !b[d].resource && b[d].url) {
+                b[d].resource = new Image;
+                b[d].resource.src = b[d].url;
+            }
+            e = (e + 1) % f;
+        }
+    },
+    loadMoreIfNeccessary: function(c) {
+        if (this.allLoaded || c && this.rightLock || !c && this.leftLock) return;
+        var d = c ? 1 : -1;
+        var a = this.fullBucketSize * d;
+        var b = this.position + this.bufferSize * d;
+        if (b < 0 && !this.checkErrorAt(this.getEndCursor(false))) {
+            this.leftLock = true;
+            this.fetch(this.fullBucketSize, false);
+        } else if (b > this.getLength() && !this.checkErrorAt(this.getEndCursor(true))) {
+            this.rightLock = true;
+            this.fetch(this.fullBucketSize, true);
+        }
+    },
+    getEndCursor: function(a) {
+        return a ? this.fbidList[this.getLength() - 1] : this.fbidList[0];
+    },
+    calculateRelativeIndex: function(c, a, d) {
+        if (!this.totalCount) return null;
+        var b = this.fbidList.indexOf(a);
+        var e = this.fbidList.indexOf(d);
+        if (b === -1 || e === -1) return null;
+        var f = e - b;
+        return (c + f + this.totalCount) % this.totalCount;
+    },
+    fetch: function(a, d) {
+        var c = this.getEndCursor(d);
+        var b = copy_properties({
+            cursor: c,
+            version: this.version,
+            end: this.getEndCursor(!d),
+            fetchSize: d ? a : -1 * a
+        }, this.photoSetQuery);
+        if (this.totalCount && this.firstCursorIndex !== null) {
+            b.total = this.totalCount;
+            b.cursorIndex = this.calculateRelativeIndex(this.firstCursorIndex, this.firstCursor, c);
+        }
+        UIPagelet.loadFromEndpoint("PhotoViewerPagelet", null, b, {
+            usePipe: true,
+            jsNonblock: true,
+            crossPage: true
+        });
+    },
+    storeToCache: function(a) {
+        var b = {};
+        if (!this.isActive) return b;
+        if ("error" in a) {
+            this.processErrorResult(a.error);
+            b.error = true;
+            return b;
+        }
+        if ("init" in a) {
+            this.processInitResult(a.init);
+            b.init = {
+                logids: a.init.logids,
+                fbid: a.init.fbid
+            };
+        }
+        if ("image" in a) {
+            this.processImageResult(a.image);
+            b.image = true;
+        }
+        if ("data" in a) {
+            this.processDataResult(a.data);
+            b.data = true;
+        }
+        return b;
+    },
+    processInitResult: function(a) {
+        if (this.loaded) return;
+        this.loaded = true;
+        this.photoSetQuery = a.query;
+        if (a.bufferSize) this.bufferSize = a.bufferSize;
+        if (a.fullBucketSize) this.fullBucketSize = a.fullBucketSize;
+        this.fbidList.push(a.fbid);
+        this.firstCursor = a.fbid;
+        if ("initIndex" in a && "totalCount" in a) {
+            this.firstCursorIndex = a.initIndex;
+            this.totalCount = a.totalCount;
+        }
+        this.rightLock = true;
+    },
+    processImageResult: function(b) {
+        for (var a in b) {
+            this.cache.image[a] = b[a];
+            if (b[a].dimensions) this.cache.image[a].dimensions = Vector2.deserialize(b[a].dimensions);
+            this.permalinkMap[URI(b[a].info.permalink).getUnqualifiedURI().toString()] = a;
+        }
+    },
+    attachToFbidsList: function(d, e, a) {
+        if (this.allLoaded) return;
+        if (e === -1) {
+            for (var b = d.length - 1; b >= 0; b--) {
+                this.fbidList.unshift(d[b]);
+                this.position++;
+            }
+            this.leftLock = false;
+        } else {
+            for (var c = 0; c < d.length; c++) this.fbidList.push(d[c]);
+            this.rightLock = false;
+        }
+        if (a) this.setAllLoaded();
+    },
+    setAllLoaded: function() {
+        this.allLoaded = true;
+        if (this.getCursor() === null) this.position = this.calculatePositionForMovement(0);
+    },
+    processDataResult: function(a) {
+        for (var b in a) {
+            if (!this.cache.html[b]) this.cache.html[b] = {};
+            for (var d in a[b].html) {
+                var c = HTML(a[b].html[d]).getRootNode();
+                this.cache.html[b][d] = $A(c.childNodes);
+            }
+            if (!("extra" in a[b])) {
+                this.cache.extra[b] = null;
+                continue;
+            }
+            this.cache.extra[b] = {
+                tagRects: {}
+            };
+            if (a[b].extra.tagRects) for (var e in a[b].extra.tagRects) if (a[b].extra.tagRects[e]) this.cache.extra[b].tagRects[e] = Rect.deserialize(a[b].extra.tagRects[e]);
+        }
+    },
+    processErrorResult: function(b) {
+        if (!this.isLoaded()) {
+            this.initError = true;
+            return;
+        }
+        var c = b.side;
+        var a = [ PhotoStreamCache.ERROR_ID ];
+        this.attachToFbidsList(a, c);
+    },
+    setTotalCount: function(a) {
+        this.totalCount = a;
+    },
+    setFirstCursorIndex: function(a) {
+        this.firstCursorIndex = a;
+    }
+});
+
+function PhotoInlineEditor(a) {
+    this.version = a;
+    PhotoInlineEditor.instances[a] = this;
+}
+
+PhotoInlineEditor.CANCEL_INLINE_EDITING = "CANCEL_INLINE_EDITING";
+
+PhotoInlineEditor.instances = {};
+
+PhotoInlineEditor.getInstance = function(a) {
+    return PhotoInlineEditor.instances[a];
+};
+
+copy_properties(PhotoInlineEditor.prototype, {
+    cancel: function(a) {
+        var b = Parent.byClass(a, "photoUfiContainer");
+        if (!b) return;
+        this.setVisible(b, ".fbPhotosPhotoCaption", true);
+        this.setVisible(b, ".fbPhotoTagList", true);
+        this.setVisible(b, ".fbPhotosPhotoEdit", true);
+        this.setVisible(b, ".fbPhotosPhotoDisabledEdit", false);
+        this.setVisible(b, ".fbPhotoInlineEditor", false);
+        Arbiter.unsubscribe(this.arbiterToken);
+        Arbiter.inform(PhotoInlineEditor.CANCEL_INLINE_EDITING);
+    },
+    setVisible: function(c, a, d) {
+        var b = DOM.scry(c, a)[0];
+        b && CSS[d ? "show" : "hide"](b);
+    },
+    subscribeCancel: function(a) {
+        var b = [ PhotoSnowbox.PAGE, PhotoSnowbox.CLOSE, PhotoSnowbox.OPEN, PhotoTagger.ACTIVATE_TAGGING ];
+        this.arbiterToken = Arbiter.subscribe(b, this.cancel.bind(this, a), Arbiter.SUBSCRIBE_NEW);
+    }
+});
+
+var PhotoSnowbox = {
+    STATE_ERROR: "error",
+    STATE_HTML: "html",
+    STATE_IMAGE_PIXELS: "image_pixels",
+    STATE_IMAGE_DATA: "image",
+    CLOSE: "PhotoSnowbox.CLOSE",
+    DATA_CHANGE: "PhotoSnowbox.DATA_CHANGE",
+    GO: "PhotoSnowbox.GO",
+    OPEN: "PhotoSnowbox.OPEN",
+    PAGE: "PhotoSnowbox.PAGE",
+    RESET_HELP: "PhotoSnowbox.RESET_HELP",
+    LOADING_TIMEOUT: 2e3,
+    STAGE_MAX: {
+        x: 960,
+        y: 960
+    },
+    STAGE_MIN: {
+        x: 720,
+        y: 402
+    },
+    STAGE_CHROME: {
+        x: 225,
+        y: 117
+    },
+    MIN_TAG_DISTANCE: 83,
+    switchTimer: null,
+    imageRefreshTimer: null,
+    imageLoadingTimer: null,
+    lastPage: 0,
+    currentMinSize: null,
+    normalSize: null,
+    thumbSrc: null,
+    stopWatch: {
+        begin: null,
+        showFrame: null,
+        showNormal: null,
+        fetchInit: null,
+        showUfi: null,
+        secondBatch: null
+    },
+    bootstrap: function(b, a) {
+        if (this.isOpen) return;
+        this.stopWatch.begin = +(new Date);
+        this.returningToStart = false;
+        this.loading && CSS.removeClass(this.loading, "loading");
+        if (a) {
+            CSS.addClass(this.loading = a, "loading");
+            this.getThumbAndSize(a);
+        } else this.loading = null;
+        Arbiter.inform(PhotoSnowbox.GO, b, Arbiter.BEHAVIOR_STATE);
+        this.loadFrameIfUninitialized();
+        Bootloader.loadComponents([ "TagTokenizer", "TagToken", "PhotoTag", "PhotoTagger", "PhotoInlineEditor" ]);
+    },
+    getThumbAndSize: function(b) {
+        this.normalSize = null;
+        this.thumbSrc = null;
+        var e = URI(b.getAttribute("ajaxify")).getQueryData();
+        if (!e.size) return;
+        var a = Vector2.deserialize(e.size);
+        if (!a.x || !a.y) return;
+        this.normalSize = a;
+        if (!CSS.hasClass(b, "uiMediaThumb") && !CSS.hasClass(b, "uiPhotoThumb")) return;
+        var d = DOM.scry(b, "img")[0];
+        var c = DOM.scry(b, "i")[0];
+        if (d) {
+            thumbSrc = d.src;
+        } else if (c) {
+            thumbSrc = CSS.getStyle(c, "backgroundImage").replace(/.*url\("?([^"]*)"?\).*/, "$1");
+        } else return;
+        this.thumbSrc = thumbSrc;
+    },
+    loadFrameIfUninitialized: function() {
+        if (this.root) return;
+        (new AsyncRequest("/ajax/photos/snowbox/init.php")).setAllowCrossPageTransition(true).setMethod("GET").setReadOnly(true).send();
+    },
+    init: function(a) {
+        var b = ge("fbPhotoSnowbox");
+        if (!b) {
+            b = DOM.appendContent(document.body, a)[0];
+            this.initialLoad = false;
+        }
+        if (this.root == b) return;
+        this.initializeNodes(b);
+        if (!this.subscription) {
+            LinkController.registerHandler(this.handleNavigateAway.bind(this), LinkController.TARGETS | LinkController.MODIFIERS);
+            this.subscription = Arbiter.subscribe(PhotoSnowbox.GO, function(c, d) {
+                this.loading && CSS.removeClass(this.loading, "loading");
+                this.open(d);
+            }.bind(this));
+        }
+        this.returningToStart = false;
+        PageTransitions.registerHandler(this.openHandler.bind(this));
+    },
+    initializeNodes: function(a) {
+        this.root = a;
+        this.closeTheater = DOM.find(a, "a.closeTheater");
+        this.container = DOM.find(a, "div.container");
+        this.infoWrapper = DOM.find(a, "div.photoInfoWrapper");
+        this.stageWrapper = DOM.find(a, "div.stageWrapper");
+        this.errorBox = DOM.find(this.stageWrapper, "div.stageError");
+        this.image = DOM.find(this.stageWrapper, "img.spotlight");
+        this.pivotBar = DOM.find(this.stageWrapper, "div.pivotWrapper");
+        this.stage = DOM.find(this.stageWrapper, "div.stage");
+        this.videoStage = DOM.find(this.stageWrapper, "div.videoStage");
+        this.stagePagers = DOM.find(a, "div.stagePagers");
+        this.stageActions = DOM.find(a, "div.stageActions");
+        this.buttonActions = DOM.find(this.stageActions, "div.fbPhotosPhotoButtons");
+        Event.listen(this.root, "click", this.closeListener.bind(this));
+    },
+    getRoot: function() {
+        return this.root;
+    },
+    openHandler: function(a) {
+        if (this.isOpen || a.getPath() != "/photo.php" || this.returningToStart || a.getQueryData().closeTheater || a.getQueryData().permPage || a.getQueryData().makeprofile) return false;
+        this.open(a);
+        PageTransitions.transitionComplete();
+        return true;
+    },
+    open: function(a) {
+        Bootloader.loadComponents([ "fb-photos-photo-css", "fb-photos-snowbox-css" ], function() {
+            this._open(a);
+        }.bind(this));
+    },
+    _open: function(e) {
+        var a = URI(e).getQueryData();
+        var d = a.src;
+        if (d) delete a.src;
+        if (!this.initialLoad) {
+            a.firstLoad = true;
+            this.initialLoad = true;
+        }
+        this.loadQuery = a;
+        this.isOpen = true;
+        this.refreshOnClose = false;
+        this.hilitedTag = null;
+        this.secondBatchArrived = false;
+        this.createLoader(d);
+        this.loadingStates = {
+            image: false,
+            html: false
+        };
+        this.stream = new PhotoStreamCache;
+        this.stream.init(PhotosConst.VIEWER_SNOWBOX);
+        this.fetchInitialData();
+        this.setLoadingState(PhotoSnowbox.STATE_HTML, true);
+        KeyEventController.registerKey("ESCAPE", this.closeListener.bind(this));
+        CSS.addClass(document.documentElement, "theaterMode");
+        CSS.show(this.root);
+        this.stopWatch.showFrame = +(new Date);
+        Arbiter.inform("new_layer");
+        Arbiter.inform(PhotoSnowbox.OPEN);
+        this.stageHandlers = [ Event.listen(window, "resize", this.adjustForResize.bind(this)), Event.listen(this.stageWrapper, "click", this.buttonListener.bind(this)), Event.listen(this.stageWrapper, "dragstart", Event.kill), Event.listen(this.stageWrapper, "selectstart", Event.kill) ];
+        var b = ge("fbPhotoSnowboxFeedback");
+        if (b) this.stageHandlers.push(Event.listen(b, "click", function(event) {
+            if (Parent.byClass(event.getTarget(), "like_link")) CSS.toggleClass(DOM.find(this.buttonActions, "div.likeCommentGroup"), "viewerLikesThis");
+        }.bind(this)));
+        var c = ge("fbPhotoSnowboxOnProfile");
+        if (c) this.stageHandlers.push(Event.listen(c, "click", function(event) {
+            if (Parent.byClass(event.getTarget(), "fbPhotoRemoveFromProfileLink")) this.refreshOnClose = true;
+        }.bind(this)));
+        PageTransitions.registerHandler(function(f) {
+            if (this.isOpen && !f.getQueryData().makeprofile) {
+                this.close();
+                return true;
+            }
+            return false;
+        }.bind(this));
+        this.startingURI = URI.getMostRecentURI().addQueryData({
+            closeTheater: 1
+        }).getUnqualifiedURI();
+        if (!d) this.setLoadingState(PhotoSnowbox.STATE_IMAGE_DATA, true);
+        PageTransitions.registerHandler(this.transitionHandler.bind(this));
+        PhotoSnowboxLog.initLogging();
+        ua.firefox() && this.turnFlashAutoplayOff.defer();
+        (function() {
+            this.adjustForResize();
+            if (ua.ie()) {
+                this.container.focus();
+            } else this.root.focus();
+        }).bind(this).defer();
+    },
+    getStream: function() {
+        return this.stream;
+    },
+    fetchInitialData: function() {
+        this.stopWatch.fetchInit = +(new Date);
+        UIPagelet.loadFromEndpoint("PhotoViewerInitPagelet", null, this.loadQuery, {
+            usePipe: true,
+            jsNonblock: true,
+            crossPage: true
+        });
+    },
+    turnFlashAutoplayOff: function() {
+        DOM.scry(document, "div.swfObject").each(function(d) {
+            var b = d.getAttribute("data-swfid");
+            if (b && window[b]) {
+                var c = window[b];
+                c.addParam("autostart", "false");
+                c.addParam("autoplay", "false");
+                c.addParam("play", "false");
+                c.addVariable("video_autoplay", "0");
+                c.addVariable("autoplay", "0");
+                c.addVariable("play", "0");
+                var a = URI(c.getAttribute("swf"));
+                a.addQueryData({
+                    autoplay: "0"
+                });
+                a.setPath(a.getPath().replace("autoplay=1", "autoplay=0"));
+                c.setAttribute("swf", a.toString());
+                c.write(d);
+            }
+        });
+    },
+    closeHandler: function() {
+        if (!this.isOpen) return;
+        if (URI.getMostRecentURI().addQueryData({
+            closeTheater: 1
+        }).getUnqualifiedURI().toString() == this.startingURI.toString()) {
+            this.close();
+            return;
+        }
+        this.close();
+        this.returnToStartingURI(this.refreshOnClose);
+    },
+    returnToStartingURI: function(c, a) {
+        if (!c) if (a) {
+            this.squashNextTransition(goURI.curry(a));
+        } else this.squashNextTransition();
+        this.returningToStart = true;
+        var d = PhotoSnowbox.startingURI;
+        var b = (new URI(d)).removeQueryData("closeTheater");
+        if (d.getQueryData().sk == "approve" && d.getPath() == "/profile.php") {
+            b.removeQueryData("highlight");
+            b.removeQueryData("notif_t");
+        }
+        goURI(b);
+    },
+    squashNextTransition: function(a) {
+        this.squashNext = true;
+        PageTransitions.registerHandler(function(b) {
+            if (PhotoSnowbox.squashNext) {
+                PhotoSnowbox.squashNext = false;
+                if (a) a.defer();
+                PageTransitions.transitionComplete();
+                return true;
+            }
+            return false;
+        });
+    },
+    handleNavigateAway: function(b) {
+        var a = _computeRelativeURI(window.PageTransitions._most_recent_uri.getQualifiedURI(), b.getAttribute("href"));
+        if (this.isOpen && a instanceof URI && a.getUnqualifiedURI().toString() != this.startingURI.toString() && a.getPath() != "/photo.php") {
+            if (!this.closingAction) this.closingAction = PhotoSnowboxLog.NAVIGATE;
+            this.close();
+            this.returnToStartingURI(false, a);
+            return false;
+        }
+        return true;
+    },
+    closeListener: function(event) {
+        if (this.isOpen && !(window.Dialog && Dialog.getCurrent())) {
+            var c = event.getTarget();
+            var a = Parent.byClass(c, "closeTheater");
+            var b = a || c == this.root || c == this.infoWrapper;
+            if (b) {
+                if (a) {
+                    this.closingAction = PhotoSnowboxLog.X;
+                } else this.closingAction = PhotoSnowboxLog.OUTSIDE;
+                Event.kill(event);
+                this.closeHandler();
+            } else if (Event.getKeyCode(event) == KEYS.ESC) {
+                this.closingAction = PhotoSnowboxLog.ESC;
+                Event.kill(event);
+                this.closeHandler();
+            }
+        }
+    },
+    close: function() {
+        if (!this.isOpen) return;
+        CSS.hide(this.root);
+        CSS.removeClass(document.documentElement, "theaterMode");
+        CSS.removeClass(this.root, "dataLoaded");
+        this.closeCleanup.bind(this).defer();
+    },
+    closeCleanup: function() {
+        KeyEventController.getInstance().resetHandlers();
+        PhotoSnowboxLog.setLoadedPhotosCount(this.stream.getLength());
+        PhotoSnowboxLog.setWaitForLoadCount(this.waitForLoadCount);
+        PhotoSnowboxLog.setStopWatchData(this.stopWatch);
+        PhotoSnowboxLog.logPhotoViews(this.closingAction);
+        this.destroy();
+        CSS.hide(this.errorBox);
+        CSS.hide(this.image);
+        this.normalSize = null;
+        this.thumbSrc = null;
+        CSS.removeClass(this.stageWrapper, "showVideo");
+        DOM.empty(this.videoStage);
+        this.currentMinSize = null;
+        this.pinPagers = false;
+        this.recacheData();
+        this.stream.destroy();
+        var a = this.closingAction === PhotoSnowboxLog.NAVIGATE;
+        this.closingAction = null;
+        PageTransitions.registerHandler(this.openHandler.bind(this));
+        Arbiter.inform(PhotoSnowbox.CLOSE, a);
+        this.root.setAttribute("aria-busy", "true");
+        this.isOpen = false;
+    },
+    createLoader: function(b) {
+        if (this.thumbSrc !== null && this.normalSize !== null) {
+            var a = this.getMaxImageSize(this.normalSize);
+            this.useImage($N("img", {
+                className: "spotlight",
+                alt: "",
+                src: this.thumbSrc,
+                style: {
+                    width: a.x + "px",
+                    height: a.y + "px"
+                }
+            }), a, false);
+        }
+        this.setLoadingState(this.STATE_IMAGE_PIXELS, true);
+        if (b) (function() {
+            var c = new Image;
+            c.onload = async_callback(function() {
+                if (!this.stream || !this.stream.errorInCurrent()) {
+                    this.switchImage(b, this.normalSize);
+                    this.stopWatch.showNormal = +(new Date);
+                }
+            }.bind(this), "photo_theater");
+            c.src = b;
+        }).bind(this).defer();
+        CSS.hide(this.stageActions);
+        CSS.hide(this.stagePagers);
+    },
+    initDataFetched: function(a) {
+        PhotoSnowboxLog.setPhotoSet(this.stream.getPhotoSet());
+        PhotoSnowboxLog.setLogFbids(a.logids);
+        PhotoSnowboxLog.addPhotoView(this.stream.getCurrentImageData().info);
+        this.position = this.stream.getCursor();
+        var b = {
+            click: this.pageListener.bind(this),
+            mouseleave: this.mouseLeaveListener.bind(this),
+            mousemove: this.mouseMoveListener.bind(this)
+        };
+        if (!this.pageHandlers) {
+            this.pageHandlers = values(Event.listen(this.root, b));
+            KeyEventController.registerKey("LEFT", this.pageListener.bind(this));
+            KeyEventController.registerKey("RIGHT", this.pageListener.bind(this));
+        }
+        CSS.show(this.stageActions);
+        this.root.setAttribute("aria-busy", "false");
+    },
+    adjustForResize: function() {
+        this.currentMinSize = null;
+        this.pinPagers = false;
+        this.adjustStageSize();
+        this.adjustForNewData();
+    },
+    getMaxImageSize: function(c) {
+        var f = Vector2.getViewportDimensions();
+        var e = f.sub(new Vector2(PhotoSnowbox.STAGE_CHROME.x, PhotoSnowbox.STAGE_CHROME.y));
+        var a = new Vector2(Math.min(c.x, e.x, PhotoSnowbox.STAGE_MAX.x), Math.min(c.y, e.y, PhotoSnowbox.STAGE_MAX.y));
+        if (a.x === 0 && a.y === 0) return new Vector2(0, 0);
+        var d = c.x / c.y;
+        var b = a.x / a.y;
+        if (b < d) return new Vector2(a.x, Math.round(a.x / d));
+        return new Vector2(Math.round(a.y * d), a.y);
+    },
+    adjustStageSize: function(c) {
+        var a;
+        var b = this.stream && this.stream.getCurrentImageData();
+        if (c) {
+            a = c;
+        } else if (b && b.dimensions) {
+            a = b.dimensions;
+        } else if (this.image && this.image.src && image_has_loaded(this.image)) {
+            a = Vector2.getElementDimensions(this.image);
+        } else return;
+        var d = this.getMaxImageSize(a);
+        if (!this.currentMinSize) {
+            this.currentMinSize = new Vector2(Math.max(d.x, PhotoSnowbox.STAGE_MIN.x), Math.max(d.y, PhotoSnowbox.STAGE_MIN.y));
+        } else this.currentMinSize = new Vector2(Math.max(d.x, this.currentMinSize.x), Math.max(d.y, PhotoSnowbox.STAGE_MIN.y));
+        CSS.setStyle(this.container, "width", this.currentMinSize.x + "px");
+        CSS.setStyle(this.stageWrapper, "height", this.currentMinSize.y + "px");
+        CSS.setStyle(this.stage, "lineHeight", this.currentMinSize.y + "px");
+        CSS.setStyle(this.videoStage, "lineHeight", this.currentMinSize.y + "px");
+        if (!this.pinPagers) CSS.setStyle(this.stagePagers, "height", this.currentMinSize.y / 2 + "px");
+        this.pinPagers = true;
+    },
+    adjustForNewData: function() {
+        if (!this.image) return;
+        var c = DOM.scry(this.stage, "div.tagsWrapper")[0];
+        var a = Vector2.getElementDimensions(this.image);
+        if (c) {
+            CSS.setStyle(c, "width", a.x + "px");
+            CSS.setStyle(c, "height", a.y + "px");
+            if (ua.ie() <= 7) {
+                var b = DOM.scry(this.root, "div.tagContainer")[0];
+                if (b) CSS.conditionClass(c, "ie7VerticalFix", Vector2.getElementDimensions(b).y > a.y);
+            }
+        }
+    },
+    setLoadingState: function(b, a) {
+        switch (b) {
+          case PhotoSnowbox.STATE_IMAGE_PIXELS:
+            CSS.conditionClass(this.root, "imagePixelsLoading", a);
+            break;
+          case PhotoSnowbox.STATE_IMAGE_DATA:
+            this.loadingStates[b] = a;
+            CSS.conditionClass(this.root, "imageLoading", a);
+            break;
+          case PhotoSnowbox.STATE_HTML:
+            this.loadingStates[b] = a;
+            CSS.conditionClass(this.root, "dataLoading", a);
+            CSS.conditionClass(this.root, "dataLoaded", !a);
+            this.infoWrapper.setAttribute("aria-busy", a ? "true" : "false");
+            break;
+        }
+    },
+    destroy: function() {
+        this.stageHandlers.each(function(b) {
+            b.remove();
+        });
+        if (this.pageHandlers) {
+            this.pageHandlers.each(function(b) {
+                b.remove();
+            });
+            this.pageHandlers = null;
+        }
+        for (var a in this.stopWatch) this.stopWatch[a] = null;
+    },
+    checkState: function(b) {
+        if (b != PhotoSnowbox.STATE_ERROR && !this.loadingStates[b]) return;
+        switch (b) {
+          case PhotoSnowbox.STATE_IMAGE_DATA:
+            var a = this.stream.getCurrentImageData();
+            if (a) {
+                if (a.url) {
+                    this.switchImage(a.url, null, true);
+                } else if (a.video) this.switchVideo(a.video, true);
+                this.setLoadingState(b, false);
+            }
+            break;
+          case PhotoSnowbox.STATE_HTML:
+            if (this.stream.getCurrentHtml()) {
+                this.swapData();
+                this.setLoadingState(b, false);
+            }
+            break;
+          default:
+            if (this.stream.errorInCurrent()) {
+                CSS.hide(this.image);
+                CSS.show(this.errorBox);
+            }
+            break;
+        }
+    },
+    buttonListener: function(event) {
+        var b = event.getTarget();
+        var a = +(new Date);
+        if (a - this.lastPage < 350) {
+            if (Parent.byClass(b, "tagApproveIgnore")) Event.kill(event);
+            return;
+        }
+        if (Parent.byClass(b, "likeButton")) {
+            DOM.find($("fbPhotoSnowboxFeedback"), "button.like_link").click();
+        } else if (Parent.byClass(b, "commentButton")) {
+            DOM.find(this.root, "div.commentBox textarea").focus();
+            this.root.scrollTop = this.root.scrollHeight;
+        } else if (Parent.byClass(b, "rotateRight")) {
+            this.rotate("right");
+        } else if (Parent.byClass(b, "rotateLeft")) {
+            this.rotate("left");
+        } else if (Parent.byClass(b, "tagApproveIgnore")) this.updateTagBox(event, b);
+    },
+    updateTagBox: function(event, c) {
+        var a;
+        if (Parent.byClass(c, "approveTag")) {
+            a = true;
+        } else if (Parent.byClass(c, "ignoreTag")) {
+            a = false;
+        } else return;
+        this.unhiliteAllTags();
+        var b = Parent.byClass(c, "tagBoxPending");
+        CSS.addClass(b, "tagBox tagBoxPendingResponse");
+        CSS.removeClass(b, "tagBoxPending");
+        CSS.hide(DOM.find(b, "span.tagForm"));
+        if (a) {
+            CSS.show(DOM.find(b, "span.tagApproved"));
+        } else CSS.show(DOM.find(b, "span.tagIgnored"));
+    },
+    rotate: function(b) {
+        var c = this.stream.getCursor();
+        var a = {
+            fbid: c,
+            cs_ver: PhotosConst.VIEWER_SNOWBOX
+        };
+        a[b] = 1;
+        this.setLoadingState(PhotoSnowbox.STATE_IMAGE_DATA, true);
+        this.setLoadingState(this.STATE_IMAGE_PIXELS, true);
+        CSS.hide(this.image);
+        (new AsyncRequest("/ajax/photos/photo/rotate/")).setAllowCrossPageTransition(true).setData(a).setErrorHandler(this.rotationError.bind(this, c)).setHandler(this.rotationComplete.bind(this, c)).setMethod("POST").setReadOnly(false).send();
+    },
+    rotationComplete: function(a, b) {
+        this.storeResponseForRotate(a, b);
+        if (a == this.stream.getCursor()) {
+            this.setLoadingState(PhotoSnowbox.STATE_IMAGE_DATA, false);
+            this.switchImage(this.stream.getCurrentImageData().url);
+            this.swapData();
+        }
+        this.refreshOnClose = true;
+    },
+    storeResponseForRotate: function(a, c) {
+        this.storeFromResponse(c);
+        var b = this.stream.getImageData(a);
+        b.url = c.getPayload().new_urls[PhotosConst.SIZE_NORMAL];
+        b.dimensions = Vector2.deserialize(c.getPayload().dimensions);
+    },
+    rotationError: function(a, b) {
+        if (a == this.stream.getCursor()) {
+            this.setLoadingState(PhotoSnowbox.STATE_IMAGE_DATA, false);
+            this.switchImage(this.stream.getCurrentImageData().url);
+            AsyncResponse.defaultErrorHandler(b);
+        }
+    },
+    saveTagComplete: function(a) {
+        this.saveTagsFromPayload(a.getPayload());
+    },
+    saveTagsFromPayload: function(a) {
+        this.refreshOnClose = true;
+        this.storeFromData(a);
+        if ("data" in a && this.stream.getCursor() in a.data) this.swapData();
+    },
+    mouseLeaveListener: function(event) {
+        this.unhiliteAllTags();
+        this.hiliteLeftmostPendingTag();
+    },
+    mouseMoveListener: function(event) {
+        var b = event.getTarget();
+        var a = Parent.byClass(b, "stageActions") || Parent.byClass(b, "stageWrapper");
+        if (!a) CSS.hide(this.pivotBar);
+        if (this.hasPivotData() && !this.loadingStates.html) CSS.show(this.pivotBar);
+        this.hiliteTagsOnMouseMove(event);
+    },
+    hasPivotData: function() {
+        var a = this.stream.getCurrentHtml();
+        return a && a.fbPhotoSnowboxPivots;
+    },
+    unhiliteAllTags: function() {
+        DOM.scry(this.stage, "div.tagsWrapper div.hover").each(function(a) {
+            CSS.removeClass(a, "hover");
+        });
+        this.hilitedTag = null;
+    },
+    switchHilitedTags: function(b) {
+        if (this.switchTimer !== null) {
+            clearTimeout(this.switchTimer);
+            this.switchTimer = null;
+        }
+        var a = ge(this.hilitedTag);
+        a && CSS.removeClass(a, "hover");
+        this.unhiliteAllTags();
+        if (b) {
+            this.hilitedTag = b;
+            CSS.addClass($(this.hilitedTag), "hover");
+        }
+    },
+    hiliteLeftmostPendingTag: function() {
+        var a = ge(this.hilitedTag);
+        if (a && CSS.hasClass(a, "tagBoxPending")) return;
+        var b = DOM.scry(this.stage, "div.tagsWrapper div.tagBoxPending")[0];
+        if (b) this.switchHilitedTags(b.id);
+    },
+    hiliteTagsOnMouseMove: function(event) {
+        if (!this.stream.getCurrentExtraData() || this.getVideoOnStage()) return;
+        if (this.switchTimer !== null) return;
+        var i = Parent.byClass(event.getTarget(), "tagBoxPending");
+        var d = this.hilitedTag && CSS.hasClass($(this.hilitedTag), "tagBoxPending");
+        var l = !this.hilitedTag && i || !d && i;
+        if (l) {
+            this.switchHilitedTags(i.id);
+            return;
+        }
+        if (i && i.id == this.hilitedTag) return;
+        var a = 250;
+        var h = Vector2.getEventPosition(event);
+        var f = Vector2.getElementPosition(this.image);
+        var e = Vector2.getElementDimensions(this.image);
+        var j = this.stream.getCurrentImageData().dimensions;
+        var k = e.x / j.x;
+        var g = PhotosUtils.getNearestBox(h, f, j, k, PhotoSnowbox.MIN_TAG_DISTANCE * k, this.stream.getCurrentExtraData().tagRects);
+        if (!g) {
+            if (!d) {
+                this.unhiliteAllTags();
+                this.hiliteLeftmostPendingTag();
+            }
+            return;
+        }
+        var b = null;
+        if (d) {
+            var c = {};
+            c[this.hilitedTag] = this.stream.getCurrentExtraData().tagRects[this.hilitedTag];
+            b = PhotosUtils.getNearestBox(h, f, j, k, PhotoSnowbox.MIN_TAG_DISTANCE * k, c);
+        }
+        if (b !== null && d) return;
+        if (this.hilitedTag != g) if (d) {
+            this.switchTimer = this.switchHilitedTags.bind(this, g).defer(a);
+        } else this.switchHilitedTags(g);
+    },
+    getVideoOnStage: function() {
+        var a = this.stream && this.stream.getCurrentImageData();
+        return a && a.video;
+    },
+    shouldGoForward: function(a, c) {
+        var d = a == KEYS.RIGHT || Parent.byClass(c, "next");
+        if (d) return true;
+        var b = this.getVideoOnStage() || CSS.hasClass(this.root, "taggingMode") || Parent.byClass(c, "tagBoxPending") || Parent.byClass(c, "tagBoxPendingResponse");
+        if (b) return false;
+        return DOM.isNode(c) && Parent.byClass(c, "stage");
+    },
+    pageListener: function(event) {
+        var a = Event.getKeyCode(event);
+        var b = event.getTarget();
+        if (a == KEYS.LEFT || Parent.byClass(b, "prev")) {
+            this.page(-1);
+            user_action(b, "a", event);
+            return;
+        }
+        if (this.shouldGoForward(a, b)) {
+            this.page(1);
+            user_action(b, "a", event);
+        }
+    },
+    page: function(c, b) {
+        if (!this.stream.isValidMovement(c)) return;
+        this.lastPage = +(new Date);
+        this.unhiliteAllTags();
+        var d = this.getVideoOnStage();
+        if (d) this.switchVideo(d, false);
+        Arbiter.inform(PhotoSnowbox.PAGE);
+        this.recacheData();
+        this.stream.moveCursor(c);
+        CSS.hide(this.image);
+        if (this.stream.errorInCurrent()) {
+            this.setLoadingState(PhotoSnowbox.STATE_HTML, true);
+            CSS.show(this.errorBox);
+            return;
+        }
+        var a = this.stream.getCurrentImageData();
+        if (a) {
+            if (a.url) {
+                this.switchImage(a.url, null, true);
+            } else if (a.video) this.switchVideo(a.video, true);
+            if (!b) {
+                this.replaceUrl = true;
+                goURI(a.info.permalink);
+            }
+        } else {
+            this.waitForLoadCount++;
+            this.setLoadingState(PhotoSnowbox.STATE_IMAGE_PIXELS, true);
+            this.setLoadingState(PhotoSnowbox.STATE_IMAGE_DATA, true);
+        }
+        if (this.stream.getCurrentHtml()) {
+            this.swapData();
+        } else this.setLoadingState(PhotoSnowbox.STATE_HTML, true);
+        this.hiliteLeftmostPendingTag();
+    },
+    transitionHandler: function(c) {
+        if (c.getQueryData().closeTheater || c.getQueryData().permPage || this.returningToStart) return false;
+        if (this.replaceUrl) {
+            this.replaceUrl = false;
+            PageTransitions.transitionComplete();
+            return true;
+        }
+        if (c.getQueryData().makeprofile) {
+            this.close();
+            return false;
+        }
+        var a = this.stream.getCursorForURI(c.getUnqualifiedURI().toString());
+        if (a) {
+            var b = this.stream.getRelativeMovement(a);
+            this.page(b, true);
+            PageTransitions.transitionComplete();
+            return true;
+        }
+        return false;
+    },
+    recacheData: function() {
+        if (!this.loadingStates.html) {
+            var a = this.stream.getCurrentHtml();
+            for (var b in a) {
+                a[b] = $A($(b).childNodes);
+                DOM.empty($(b));
+            }
+        }
+    },
+    reloadIfTimeout: function() {
+        if (!image_has_loaded(this.image)) {
+            var a = this.makeNewImage(this.image.src, true);
+            Event.listen(a, "load", this.useImage.bind(this, a, null, true));
+        }
+    },
+    useImage: function(c, a, b) {
+        if (b && image_has_loaded(this.image)) return;
+        DOM.replace(this.image, c);
+        this.image = c;
+        this.adjustStageSize(a);
+    },
+    makeNewImage: function(c, a) {
+        if (this.imageLoadingTimer) {
+            clearTimeout(this.imageLoadingTimer);
+            this.imageLoadingTimer = null;
+        } else if (!a) this.imageRefreshTimer = setTimeout(this.reloadIfTimeout.bind(this), PhotoSnowbox.LOADING_TIMEOUT);
+        var b = $N("img", {
+            className: "spotlight",
+            alt: ""
+        });
+        b.setAttribute("aria-describedby", "fbPhotosSnowboxCaption");
+        b.setAttribute("aria-busy", "true");
+        Event.listen(b, "load", async_callback(function() {
+            clearTimeout(this.imageRefreshTimer);
+            this.image.setAttribute("aria-busy", "false");
+            this.setLoadingState(this.STATE_IMAGE_PIXELS, false);
+            (function() {
+                this.adjustStageSize();
+                this.adjustForNewData();
+            }).bind(this).defer();
+        }.bind(this), "photo_theater"));
+        b.src = c;
+        return b;
+    },
+    switchImage: function(d, b, c) {
+        CSS.hide(this.image);
+        CSS.hide(this.errorBox);
+        this.setLoadingState(this.STATE_IMAGE_PIXELS, true);
+        var a = this.stream && this.stream.getCurrentImageData();
+        if (a) PhotoSnowboxLog.addPhotoView(a.info);
+        this.useImage(this.makeNewImage(d, false), b, false);
+        if (c) this.stream.preloadImages();
+    },
+    switchVideo: function(c, a) {
+        var b = "swf_" + c;
+        if (a) {
+            CSS.addClass(this.stageWrapper, "showVideo");
+            this.videoStage.id = c;
+            if (window[b] && !ge(b)) window[b].write(c);
+            (function() {
+                var d = ge(b);
+                d && this.adjustStageSize(new Vector2(d.width, d.height));
+            }).bind(this).defer();
+        } else {
+            this.videoStage.id = "fbVideoStage";
+            window[b].addVariable("video_autoplay", 0);
+            DOM.empty(this.videoStage);
+            CSS.removeClass(this.stageWrapper, "showVideo");
+        }
+    },
+    setErrorBoxContent: function(a) {
+        DOM.setContent(this.errorBox, a);
+    },
+    swapData: function() {
+        var b, c = this.stream.getCurrentHtml();
+        if (c) {
+            this.setLoadingState(PhotoSnowbox.STATE_HTML, false);
+            for (var d in c) {
+                b = ge(d);
+                b && DOM.setContent(b, c[d]);
+            }
+            var a = DOM.scry($("fbPhotoSnowboxCaption"), "div.fbPhotoInlineCaptionEditor");
+            if (a.length) (new PhotoInlineCaptionEditor("snowbox")).init(a[0]);
+            Arbiter.inform(PhotoSnowbox.DATA_CHANGE, this.stream.getCurrentImageData().info, Arbiter.BEHAVIOR_STATE);
+            this.position = this.stream.getCursor();
+            if (ge(this.hilitedTag)) {
+                CSS.addClass($(this.hilitedTag), "hover");
+            } else this.hiliteLeftmostPendingTag();
+        }
+        this.adjustForNewData();
+    },
+    updateTotalCount: function(c, b, a) {
+        element = ge("fbPhotoSnowboxpositionAndCount");
+        element && DOM.setContent(element, a);
+        this.stream.setTotalCount(c);
+        this.stream.setFirstCursorIndex(b);
+    },
+    addPhotoFbids: function(b, c, a) {
+        var d = this.stream.getCursor() === null;
+        this.stream.attachToFbidsList(b, c, a);
+        if (a && d) this.page(0);
+    },
+    storeFromResponse: function(a) {
+        this.storeFromData(a.getPayload());
+    },
+    storeFromData: function(a) {
+        if (!this.isOpen) return;
+        var b = this.stream.storeToCache(a);
+        if ("error" in b) {
+            this.checkState(PhotoSnowbox.STATE_ERROR);
+            return;
+        }
+        if ("init" in b) {
+            this.initDataFetched(b.init);
+            this.replaceUrl = true;
+            goURI(this.stream.getCurrentImageData().info.permalink);
+            CSS.conditionShow(this.stagePagers, this.stream.canPage());
+            this.stopWatch.showUfi = +(new Date);
+        } else if (!this.secondBatchArrived) {
+            CSS.conditionShow(this.stagePagers, this.stream.canPage());
+            this.secondBatchArrived = true;
+            this.stopWatch.secondBatch = +(new Date);
+        }
+        if ("image" in b) this.checkState(PhotoSnowbox.STATE_IMAGE_DATA);
+        if ("data" in b) this.checkState(PhotoSnowbox.STATE_HTML);
+    },
+    deletePhoto: function(a) {
+        this.closeRefresh();
+    },
+    closeRefresh: function() {
+        this.refreshOnClose = true;
+        this.closeHandler();
+    }
+};
