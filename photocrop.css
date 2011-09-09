@@ -1,0 +1,13 @@
+.draggingMode{user-select:none}
+.photocrop .bg,.photocrop .guard,.photocrop .wrapper,.photocrop .wrapper *{position:absolute}
+.photocrop .bg{background:#000;opacity:.6}
+.photocrop .guard{height:100%;left:0;top:0;width:100%}
+.photocrop .highlight{left:0;top:0}
+.photocrop .viewport{cursor:move}
+.photocrop .viewport div{background-color:#d8dfea;height:10px;opacity:.5;width:10px}
+.photocrop .viewport .nw{cursor:nw-resize;left:-5px;top:-5px}
+.photocrop .viewport .ne{cursor:ne-resize;right:-5px;top:-5px}
+.photocrop .viewport .se{cursor:se-resize;bottom:-5px;right:-5px}
+.photocrop .viewport .sw{cursor:sw-resize;bottom:-5px;left:-5px}
+
+#bootloader_vcCu_ { height: 42px; }
