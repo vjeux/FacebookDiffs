@@ -43,7 +43,7 @@
 .fbPhotosTheaterTags .showTag .innerTagBox{border-color:#ccc;border-color:rgba(255, 255, 255, .8)}
 .fbPhotosTheaterTags .tag{bottom:0;display:none;left:50%;position:absolute}
 .fbPhotosTheaterTags .hover .tag{display:block}
-.fbPhotosTheaterTags .tagPointer{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/RoUXfyzjA4r.png);background-repeat:no-repeat;background-position:-141px -392px;left:-50%;padding-top:4px;position:relative;top:-3px}
+.fbPhotosTheaterTags .tagPointer{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-75px -392px;left:-50%;padding-top:4px;position:relative;top:-3px}
 .fbPhotosTheaterTags .tagName{background:#1e1e1e;color:#fff;cursor:default;font-weight:bold;padding:3px 4px 4px;position:relative;top:3px;white-space:nowrap}
 .fbPhotoTheaterGrid{width:100%}
 .dataLoading .fbPhotoTheaterGrid .detailsCell div,.dataLoading .fbPhotoTheaterGrid .commentsCell div{display:none}
@@ -90,8 +90,8 @@ ul.fbPhotoTheaterUfi{width:400px}
 .fbPhotoTheater .stageWrapperIEFix img{max-height:500px}
 .imageLoading .stage img{image-rendering:optimizeSpeed}
 .imageLoading .tagBox div{display:none}
-.fbPhotoTheater .prev,.fbPhotoTheater .next{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/RoUXfyzjA4r.png);background-repeat:no-repeat;background-position:0 -392px;cursor:pointer;height:32px;left:5px;margin-top:-16px;opacity:.7;outline:none;position:absolute;top:50%;width:32px;z-index:2}
-.fbPhotoTheater .next{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/RoUXfyzjA4r.png);background-repeat:no-repeat;background-position:-33px -392px;left:auto;right:5px}
+.fbPhotoTheater .prev,.fbPhotoTheater .next{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y3/r/Rn4wMAezAyS.png);background-repeat:no-repeat;background-position:0 -49px;cursor:pointer;height:32px;left:5px;margin-top:-16px;opacity:.7;outline:none;position:absolute;top:50%;width:32px;z-index:2}
+.fbPhotoTheater .next{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y3/r/Rn4wMAezAyS.png);background-repeat:no-repeat;background-position:-33px -49px;left:auto;right:5px}
 .fbPhotoTheater .hidePagers .prev,.fbPhotoTheater .hidePagers .next{display:none}
 .fbPhotoTheater .stageActions .hover,.fbPhotoTheater .prev:hover,.fbPhotoTheater .next:hover{opacity:1}
 .fbPhotoTheater .photoInfoWrapper{margin-bottom:-141px;padding-bottom:40px;position:relative;top:-141px}

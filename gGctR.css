@@ -27,7 +27,7 @@ div#blueBar.nphLoggedOut{height:auto}
 .fbIndex .uiWashLayoutBlueWash{background-color:#dde2ed}
 .fbIndex .contentContainer{margin:0 auto 0 auto;width:980px}
 .fbIndex .bodyWash{margin-bottom:0}
-.fbIndex .locales{margin:5px auto;width:964px}
+.fbIndex .locales{margin:10px auto 0;width:964px}
 .fbIndexFeaturePhone{height:295px;padding-top:45px;width:550px}
 .fbIndexFeaturePhone .phoneImage{margin-left:30px}
 .fbIndexFeaturePhone .rightSide{width:360px}

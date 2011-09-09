@@ -1,17 +1,16 @@
 .fbPhotosPhoto{background-color:#f2f2f2;position:relative}
 .fbPhotosPhoto .photo .img{display:block;margin-left:auto;margin-right:auto}
 .fbPhotosPhotoButtons{bottom:27px;color:#333;cursor:default;height:0;left:6px;position:absolute;right:6px;user-select:none;z-index:2}
-.fbPhotosPhotoButtons .rotateButtons{float:right}
 .fbPhotosPhotoButtons .tagMessage,.fbPhotosPhotoButtons .cropMessage{background-color:#f2f2f2;background-color:rgba(255, 255, 255, .8);color:#333;display:none;height:20px;left:0;line-height:20px;margin-left:-10px;margin-right:-10px;padding:5px 10px 6px;position:absolute;right:0;top:0}
 .fbPhotosPhotoButtons .tagMessage .doneTaggingLink{cursor:pointer;display:inline-block;margin-left:10px}
 .fbPhotosPhotoButtons .likeCommentGroup .unlike{display:none}
 .fbPhotosPhotoButtons .viewerLikesThis .like{display:none}
 .fbPhotosPhotoButtons .viewerLikesThis .unlike{display:block}
 .taggingMode .fbPhotosPhotoButtons .tagMessage{display:block}
-.taggingMode .fbPhotosPhotoButtons .likeCommentGroup,.taggingMode .fbPhotosPhotoButtons .commentButton,.taggingMode .fbPhotosPhotoButtons .rotateButtons,.taggingMode .fbPhotosPhotoButtons .tagButton{display:none}
+.taggingMode .fbPhotosPhotoButtons .likeCommentGroup,.taggingMode .fbPhotosPhotoButtons .commentButton,.taggingMode .fbPhotosPhotoButtons .tagButton{display:none}
 .fbPhotosPhotoButtons .cropMessage{display:none}
 .croppingMode .fbPhotosPhotoButtons .cropMessage{display:block}
-.croppingMode .fbPhotosPhotoButtons .likeCommentGroup,.croppingMode .fbPhotosPhotoButtons .commentButton,.croppingMode .fbPhotosPhotoButtons .rotateButtons,.croppingMode .fbPhotosPhotoButtons .tagButton{display:none}
+.croppingMode .fbPhotosPhotoButtons .likeCommentGroup,.croppingMode .fbPhotosPhotoButtons .commentButton,.croppingMode .fbPhotosPhotoButtons .tagButton{display:none}
 .fbPhotosPhotoTagboxes{height:100%;left:0;position:absolute;top:0;width:100%}
 .showVideo .fbPhotosPhotoTagboxes,.minPhotoTagboxes{height:0;width:0}
 .fbPhotosPhotoTagboxes .tagsWrapper{display:inline-block;max-height:100%;max-width:100%;position:relative;vertical-align:middle}
@@ -57,10 +56,12 @@
 .fbxPhoto .fbPhotoRemoveFromProfile{border-bottom:1px solid #e5e5e5;transition:background 500ms ease-out}
 .fbxPhoto .fbPhotosOnProfile{padding-top:2px}
 .fbxPhoto .fbPhotosOnProfile .highlight{background:#fff8cc}
-.fbxPhoto .fbPhotosPhotoActions{border-top:1px solid #e5e5e5}
-.fbxPhoto .fbPhotoRemoveFromProfile,.fbxPhoto .fbPhotosMediaInfo,.fbxPhoto .fbPhotosPhotoActions a{padding-left:5px;padding-right:5px}
+.fbxPhoto .fbPhotosPhotoActions,.fbPhotosPhotoActions .rotateButtons{border-top:1px solid #e5e5e5}
+.fbxPhoto .fbPhotoRemoveFromProfile,.fbxPhoto .fbPhotosMediaInfo,.fbxPhoto .fbPhotosPhotoActions .fbUndoSpamReport,.fbxPhoto .fbPhotosPhotoActions a,.fbPhotosPhotoActions .rotateButtons{padding-left:5px;padding-right:5px}
+.fbxPhoto .fbPhotosPhotoActions .rotateWait{color:#808080}
+.fbxPhoto .fbPhotosPhotoActions .fbUndoSpamReport a{padding-left:0;padding-right:0}
 .fbPhotosMediaInfo{margin-top:5px}
-.fbxPhoto .fbPhotosPhotoActions a{display:block;margin-bottom:5px}
+.fbxPhoto .fbPhotosPhotoActions a,.fbxPhoto .fbPhotosPhotoActions .fbUndoSpamReport{display:block;margin-bottom:5px}
 .fbPhotosPhotoActions .taggingOn,.taggingMode .taggingOff{display:none}
 .taggingMode .taggingOn{display:inline}
 .fbPhotosAudienceEditable{margin-right:0}
@@ -82,7 +83,7 @@
 .fbPhotoSnowbox .stagePagers,.fbPhotoSnowbox .stageActions{cursor:pointer;left:0;position:absolute;top:0}
 .fbPhotoSnowbox .stageActions{bottom:0;height:0;top:auto;width:100%}
 .taggingMode .stageActions{height:100%}
-.fbPhotoSnowbox .photoInfoWrapper,.dataLoading .stagePagers,.dataLoading .stageActions{display:none}
+.fbPhotoSnowbox .photoInfoWrapper,.dataLoading .stageActions{display:none}
 .dataLoaded .photoInfoWrapper{display:block}
 .taggingMode .stageActions{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/y4/r/-PAXP-deijE.gif) no-repeat;cursor:crosshair}
 .fbPhotoSnowbox .stage{background:#f6f6f6;cursor:pointer;display:block;font-size:0;height:100%;max-height:960px;min-height:402px;position:relative;text-align:center;width:100%}
