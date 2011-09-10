@@ -32,6 +32,7 @@
 .hovercardLocator{display:inline-block;visibility:hidden;width:0}
 .chatIdle.hovercardChatButtonIdle,.chatOnline.hovercardChatButtonActive,.hovercardChatButtonOffline{display:block}
 .chatIdle.hovercardChatButtonOffline,.chatOnline.hovercardChatButtonOffline,.hovercardChatButtonActive,.hovercardChatButtonIdle{display:none}
+.buttonsHovercardFooter .uiList{float:right}
 .MessagingHoverlist a.allLink{background:#f7f7f7;border-top:1px solid #e0e0e0;display:block;font-weight:bold;margin:0 -10px -10px -10px;padding:8px;text-align:center}
 .MessagingHoverlist a.allLink:hover{background:#6d84b4;border-color:#3b5998;color:#fff;text-decoration:none}
 .placesOptInCalloutImageHorizontal{background-position:10% 0;top:64px;width:433px;left:-20px}

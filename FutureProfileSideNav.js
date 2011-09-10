@@ -1980,43 +1980,53 @@ CustomPrivacyOption.prototype = {
 function FriendsPrivacyOption() {}
 
 FriendsPrivacyOption.prototype = {
-    init: function(a) {
+    init: function(a, b) {
         this._selector = Parent.byClass(a, "composerAudienceSelector");
         if (!this._selector) return;
         this._elem = a;
+        this._hasRestricted = b;
         this._plusLabel = DOM.find(a, ".plusLabel");
         this._tags = [];
         this._recalculateTooltipAndLabel();
         this._updateSelector();
-        Arbiter.subscribe("Composer/changedtags", function(b, c) {
-            this._tags = c.withTags.map(function(f) {
-                return f.getText();
+        Arbiter.subscribe("Composer/changedtags", function(c, d) {
+            this._tags = d.withTags.map(function(g) {
+                return g.getText();
             });
-            var e = c.withTags.map(function(f) {
-                return f.getValue();
+            var f = d.withTags.map(function(g) {
+                return g.getValue();
             });
-            for (var d in c.mention) if (c.mention[d].type == "user") {
-                this._tags.push(c.mention[d].text);
-                e.push(c.mention[d].uid);
+            for (var e in d.mention) if (d.mention[e].type == "user") {
+                this._tags.push(d.mention[e].text);
+                f.push(d.mention[e].uid);
             }
-            if (this._recalculateTooltipAndLabel() && this._updateSelector()) Arbiter.inform("FriendsPrivacyOption/changed", e);
+            if (this._recalculateTooltipAndLabel() && this._updateSelector()) Arbiter.inform("FriendsPrivacyOption/changed", f);
         }.bind(this));
         Selector.listen(this._selector, "change", this._updateSelector.bind(this));
     },
     _recalculateTooltipAndLabel: function() {
         var a = this._tags.length, b = this._tooltip;
         if (a > 2) {
-            this._tooltip = _tx("Vos amis et les amis des personnes identifiées");
+            this._tooltip = this._hasRestricted ? _tx("Your friends and friends of anyone tagged; Except: Restricted") : _tx("Vos amis et les amis des personnes identifiées");
         } else if (a == 2) {
-            this._tooltip = _tx("Vos amis, ceux de {user} et de {user2}", {
+            if (this._hasRestricted) {
+                this._tooltip = _tx("Your friends, {user}'s friends and {user2}'s friends; Except: Restricted ", {
+                    user: this._tags[0],
+                    user2: this._tags[1]
+                });
+            } else this._tooltip = _tx("Vos amis, ceux de {user} et de {user2}", {
                 user: this._tags[0],
                 user2: this._tags[1]
             });
         } else if (a == 1) {
-            this._tooltip = _tx("Vos amis et ceux de {user}", {
+            if (this._hasRestricted) {
+                this._tooltip = _tx("Your friends and {user}'s friends; Except: Restricted", {
+                    user: this._tags[0]
+                });
+            } else this._tooltip = _tx("Vos amis et ceux de {user}", {
                 user: this._tags[0]
             });
-        } else this._tooltip = _tx("Vos amis");
+        } else this._tooltip = this._hasRestricted ? _tx("Your friends; Except: Restricted") : _tx("Vos amis");
         CSS.conditionShow(this._plusLabel, this._tags.length);
         return b != this._tooltip;
     },
