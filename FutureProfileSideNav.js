@@ -2007,10 +2007,10 @@ FriendsPrivacyOption.prototype = {
     _recalculateTooltipAndLabel: function() {
         var a = this._tags.length, b = this._tooltip;
         if (a > 2) {
-            this._tooltip = this._hasRestricted ? _tx("Your friends and friends of anyone tagged; Except: Restricted") : _tx("Vos amis et les amis des personnes identifiées");
+            this._tooltip = this._hasRestricted ? _tx("Vos amis et les amis des personnes identifiées ; sauf : Restreint") : _tx("Vos amis et les amis des personnes identifiées");
         } else if (a == 2) {
             if (this._hasRestricted) {
-                this._tooltip = _tx("Your friends, {user}'s friends and {user2}'s friends; Except: Restricted ", {
+                this._tooltip = _tx("Vos amis, les amis de {user} et les amis de {user2} ; sauf : Restreint", {
                     user: this._tags[0],
                     user2: this._tags[1]
                 });
@@ -2020,13 +2020,13 @@ FriendsPrivacyOption.prototype = {
             });
         } else if (a == 1) {
             if (this._hasRestricted) {
-                this._tooltip = _tx("Your friends and {user}'s friends; Except: Restricted", {
+                this._tooltip = _tx("Vos amis et les amis de {user} ; sauf : Restreint", {
                     user: this._tags[0]
                 });
             } else this._tooltip = _tx("Vos amis et ceux de {user}", {
                 user: this._tags[0]
             });
-        } else this._tooltip = this._hasRestricted ? _tx("Your friends; Except: Restricted") : _tx("Vos amis");
+        } else this._tooltip = this._hasRestricted ? _tx("Vos amis ; sauf : Restreint") : _tx("Vos amis");
         CSS.conditionShow(this._plusLabel, this._tags.length);
         return b != this._tooltip;
     },
