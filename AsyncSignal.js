@@ -2318,8 +2318,8 @@ add_properties("Form", {
         }
         return d;
     },
-    getFirstElement: function(b, f) {
-        f = f || [ 'input[type="text"]', "textarea", 'input[type="password"]', 'input[type="button"]', 'input[type="submit"]' ];
+    getFirstElement: function(b) {
+        var f = [ 'input[type="text"]', "textarea", 'input[type="password"]', 'input[type="button"]', 'input[type="submit"]' ];
         var e = [];
         for (var c = 0; c < f.length && e.length == 0; c++) e = DOM.scry(b, f[c]);
         if (e.length > 0) {
@@ -2382,7 +2382,6 @@ function Dialog(a) {
     this._shim = null;
     this._hidden_objects = [];
     this._causal_elem = null;
-    this._previous_focus = null;
     if (a) this._setFromModel(a);
     Dialog._init();
 }
@@ -2835,8 +2834,6 @@ copy_properties(Dialog.prototype, {
                 this._onload_handlers[f]();
             } catch (e) {}
             this._onload_handlers = [];
-            this._previous_focus = document.activeElement;
-            this._obj.focus();
         } else this.showLoading();
         var c = 2 * Dialog._BORDER_WIDTH;
         if (Dialog._useCSSBorders) c += 2 * Dialog._HALO_WIDTH;
@@ -2904,19 +2901,14 @@ copy_properties(Dialog.prototype, {
         }
         return c;
     },
-    _renderDialog: function(c) {
+    _renderDialog: function(b) {
         if (!this._obj) this._buildDialog();
         if (this._class_name) CSS.addClass(this._obj, this._class_name);
         CSS.conditionClass(this._obj, "full_bleed", this._full_bleed);
-        if (typeof c == "string") c = HTML(c).setDeferred(this._immediate_rendering !== true);
-        DOM.setContent(this._content, c);
+        if (typeof b == "string") b = HTML(b).setDeferred(this._immediate_rendering !== true);
+        DOM.setContent(this._content, b);
         this._showDialog();
-        if (this._auto_focus) {
-            var d = Form.getFirstElement(this._content, [ 'input[type="text"]', "textarea", 'input[type="password"]' ]);
-            if (d) Form.focusFirst.bind(this, this._content).defer();
-            var b = Form.getFirstElement(this._content, [ 'input[type="button"]', 'input[type="submit"]' ]);
-            if (b) this.setClickButtonOnEnter(this._uniqueID, b);
-        }
+        if (this._auto_focus) Form.focusFirst.bind(this, this._content).defer();
         var a = Vector2.getElementDimensions(this._content).y + Vector2.getElementPosition(this._content).y;
         Dialog._bottoms.push(a);
         this._bottom = a;
@@ -2929,6 +2921,7 @@ copy_properties(Dialog.prototype, {
             tabIndex: "0"
         });
         this._obj.setAttribute("role", "alertdialog");
+        this._obj.setAttribute("aria-labelledby", "title_" + this._uniqueID);
         this._obj.style.display = "none";
         document.body.appendChild(this._obj);
         if (!this._popup) this._popup = $N("div", {
@@ -3051,7 +3044,6 @@ copy_properties(Dialog.prototype, {
             a.splice(a.indexOf(this._bottom), 1);
             Dialog._updateMaxBottom();
         }
-        if (this._previous_focus && document.activeElement && DOM.contains(this._obj, document.activeElement)) this._previous_focus.focus();
         if (d) return;
         this.destroy();
     },

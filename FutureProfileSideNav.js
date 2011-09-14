@@ -1884,18 +1884,10 @@ var ComposerAudienceSelector = function() {
     onloadRegister(function() {
         Selector.subscribe("select", function(c, d) {
             if (!CSS.hasClass(d.selector, "composerAudienceSelector")) return;
-            var e = DOM.find(d.option, "a").getAttribute("data-type");
             if (!CSS.hasClass(d.option, "groupOption")) Arbiter.inform("ComposerAudienceSelector/nongroup");
             if (!CSS.hasClass(d.option, "specialOption")) return;
-            if (CSS.hasClass(d.option, "moreOption")) {
-                CSS.addClass(d.selector, e);
-                CSS.addClass(d.selector, "showSecondaryOptions");
-                return false;
-            } else if (CSS.hasClass(d.option, "returnOption")) {
-                CSS.removeClass(d.selector, "showSecondaryOptions");
-                CSS.removeClass(d.selector, "friendList");
-                return false;
-            } else if (e == "group") Arbiter.inform("ComposerAudienceSelector/group", {
+            var e = DOM.find(d.option, "a").getAttribute("data-type");
+            if (e == "group") Arbiter.inform("ComposerAudienceSelector/group", {
                 group: Selector.getOptionValue(d.option)
             });
         });
