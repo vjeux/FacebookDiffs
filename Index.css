@@ -23,7 +23,7 @@
 .recaptcha_nothad_incorrect_sol .recaptcha_only_if_incorrect_sol{display:none !important}
 .recaptcha_whats_this{margin-left:15px;display:inline}
 .captcha_interstitial{border:1px solid #ccc;margin:20px auto;padding:20px;width:555px}
-div#blueBar.nphLoggedOut{height:auto}
+div#blueBar.loggedOut{height:auto}
 .fbIndex .uiWashLayoutBlueWash{background-color:#dde2ed}
 .fbIndex .contentContainer{margin:0 auto 0 auto;width:980px}
 .fbIndex .bodyWash{margin-bottom:0}
@@ -57,6 +57,8 @@ div#blueBar.nphLoggedOut{height:auto}
 .fbIndexFeaturedRegistration .subtitle{color:#0e385f;font-size: 15px}
 .fbIndexFeaturedRegistration .pagesSection{margin-right:25px}
 .fbIndexFeaturedRegistration #reg_box .large_form label{font-weight:normal}
+.localeSelectorList a.showMore{background-color:#eceff5;padding:0 6px 2px}
+.localeSelectorList a.showMore:hover{background-color:#6d84b4;color:#fff;text-decoration:none}
 .menu_login_container table tr{vertical-align:top}
 .menu_login_container table tr td{padding:0 0 0 14px}
 .menu_login_container .html7magic{padding-bottom:4px}
@@ -193,4 +195,4 @@ p.legal_tos{color:#555;font-size: 9px;padding:0;margin:0 0 10px 0}
 #country_tos .reg_tos_section{width:295px;height:60px;overflow:auto;background:#fff;padding:5px;border:1px solid #bdc7d8}
 #country_tos label{font-weight:normal}
 
-#bootloader_gGctR { height: 42px; }
+#bootloader_MiDvM { height: 42px; }

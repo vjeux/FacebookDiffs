@@ -46,10 +46,11 @@ add_properties("Hovercard", {
         Arbiter.subscribe("Overlay/show", function(d, e) {
             var f = e.overlay;
             if (f.getContext) if (DOM.contains(this.container, f.getContext())) {
+                while (b.length) a.unsubscribe(b.pop());
                 a = f;
-                b = b.concat([ f.subscribe("mouseenter", function() {
+                b = [ f.subscribe("mouseenter", function() {
                     clearTimeout(this.hideTimer);
-                }.bind(this)), f.subscribe("mouseleave", bind(this, "hide", false)) ]);
+                }.bind(this)), f.subscribe("mouseleave", bind(this, "hide", false)) ];
             }
         }.bind(this));
         Arbiter.subscribe("Overlay/hide", function(d, e) {

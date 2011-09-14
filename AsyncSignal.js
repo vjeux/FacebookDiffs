@@ -1,5 +1,5 @@
 if (window.CavalryLogger) {
-    CavalryLogger.start_js([ "pU0+/" ]);
+    CavalryLogger.start_js([ "cXxlk" ]);
 }
 
 function object(b) {
@@ -691,7 +691,7 @@ copy_properties(URI, {
             return PageTransitions.getNextURI().getQualifiedURI();
         } else return new URI(window.location.href);
     },
-    expression: /(((\w+):\/\/)([^\/:]*)(:(\d+))?)?([^#?]*)(\?([^#]*))?(#(.*))?/,
+    expression: /(((\w+):\/\/)([^\\\/:]*)(:(\d+))?)?([^#?]*)(\?([^#]*))?(#(.*))?/,
     arrayQueryExpression: /^(\w+)((?:\[\w*\])+)=?(.*)/,
     explodeQuery: function(g) {
         if (!g) return {};
@@ -996,7 +996,7 @@ add_properties("CSS", {
         switch (b) {
           case "opacity":
             a.style.opacity = c;
-            a.style.filter = "alpha(opacity=" + c * 100 + ")";
+            a.style.filter = c !== "" ? "alpha(opacity=" + c * 100 + ")" : "";
             break;
           case "float":
             a.style.cssFloat = a.style.styleFloat = c;
@@ -1238,28 +1238,32 @@ function $E(a) {
         }
     });
     copy_properties(Event, {
-        listen: function(h, p, j, m) {
+        listen: function(h, q, j, n) {
             if (typeof h == "string") h = $(h);
-            if (typeof m == "undefined") m = Event.Priority.NORMAL;
-            if (typeof p == "object") {
+            if (typeof n == "undefined") n = Event.Priority.NORMAL;
+            if (typeof q == "object") {
                 var i = {};
-                for (var o in p) i[o] = Event.listen(h, o, p[o], m);
+                for (var p in q) i[p] = Event.listen(h, p, q[p], n);
                 return i;
             }
-            if (p.match(/^on/i)) throw new TypeError("Bad event name `" + event + "': use `click', not `onclick'.");
-            p = p.toLowerCase();
+            if (q.match(/^on/i)) throw new TypeError("Bad event name `" + event + "': use `click', not `onclick'.");
+            q = q.toLowerCase();
+            if (h.nodeName == "LABEL" && q == "click") {
+                var m = h.getElementsByTagName("input");
+                h = m.length == 1 ? m[0] : h;
+            }
             var k = DataStore.get(h, b, {});
-            if (f[p]) {
-                var g = f[p];
-                p = g.base;
+            if (f[q]) {
+                var g = f[q];
+                q = g.base;
                 j = g.wrap(j);
             }
-            a(h, p);
-            var q = k[p];
-            if (!(m in q)) q[m] = [];
-            var l = q[m].length, n = new EventHandlerRef(j, q[m], l);
-            q[m].push(n);
-            return n;
+            a(h, q);
+            var r = k[q];
+            if (!(n in r)) r[n] = [];
+            var l = r[n].length, o = new EventHandlerRef(j, r[n], l);
+            r[n].push(o);
+            return o;
         },
         stop: function(g) {
             return $E(g).stop();
@@ -1813,7 +1817,7 @@ animation.prototype._frame = function(m) {
                   case "backgroundColor":
                   case "borderColor":
                   case "color":
-                    var n = animation.parse_color(CSS.getStyle(this.obj, a == "borderColor" ? "borderLeftColor" : a));
+                    n = animation.parse_color(CSS.getStyle(this.obj, a == "borderColor" ? "borderLeftColor" : a));
                     if (b.attrs[a].by) {
                         b.attrs[a].value[0] = Math.min(255, Math.max(0, b.attrs[a].value[0] + n[0]));
                         b.attrs[a].value[1] = Math.min(255, Math.max(0, b.attrs[a].value[1] + n[1]));
@@ -1821,15 +1825,15 @@ animation.prototype._frame = function(m) {
                     }
                     break;
                   case "opacity":
-                    var n = CSS.getOpacity(this.obj);
+                    n = CSS.getOpacity(this.obj);
                     if (b.attrs[a].by) b.attrs[a].value = Math.min(1, Math.max(0, b.attrs[a].value + n));
                     break;
                   case "height":
-                    var n = animation._get_box_height(this.obj);
+                    n = animation._get_box_height(this.obj);
                     if (b.attrs[a].by) b.attrs[a].value += n;
                     break;
                   case "width":
-                    var n = animation._get_box_width(this.obj);
+                    n = animation._get_box_width(this.obj);
                     if (b.attrs[a].by) b.attrs[a].value += n;
                     break;
                   case "scrollLeft":
@@ -1839,7 +1843,7 @@ animation.prototype._frame = function(m) {
                     b["last" + a] = n;
                     break;
                   default:
-                    var n = parseInt(CSS.getStyle(this.obj, a), 10) || 0;
+                    n = parseInt(CSS.getStyle(this.obj, a), 10) || 0;
                     if (b.attrs[a].by) b.attrs[a].value += n;
                     break;
                 }
@@ -1959,7 +1963,7 @@ animation.parse_color = function(a) {
 };
 
 animation.parse_group = function(a) {
-    var a = trim(a).split(/ +/);
+    a = trim(a).split(/ +/);
     if (a.length == 4) {
         return a;
     } else if (a.length == 3) {
@@ -1972,21 +1976,31 @@ animation.parse_group = function(a) {
 animation.push = function(a) {
     if (!animation.active) animation.active = [];
     animation.active.push(a);
-    if (!animation.timeout) animation.timeout = setInterval(animation.animate.bind(animation), animation.resolution, false);
-    animation.animate(true);
+    if (animation.active.length === 1) {
+        if (!animation.requestAnimationFrame) {
+            var b = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
+            if (b) animation.requestAnimationFrame = b.bind(window);
+        }
+        if (animation.requestAnimationFrame) {
+            animation.requestAnimationFrame(animation._animate);
+        } else animation.timeout = setInterval(animation._animate, animation.resolution, false);
+    }
+    animation._animate((new Date).getTime(), true);
 };
 
-animation.animate = function(c) {
-    var d = (new Date).getTime();
+animation._animate = function(d, c) {
+    d = d || (new Date).getTime();
     for (var b = c === true ? animation.active.length - 1 : 0; b < animation.active.length; b++) try {
         if (!animation.active[b]._frame(d)) animation.active.splice(b--, 1);
     } catch (a) {
         animation.active.splice(b--, 1);
     }
-    if (animation.active.length == 0) {
-        clearInterval(animation.timeout);
-        animation.timeout = null;
-    }
+    if (animation.active.length === 0) {
+        if (animation.timeout) {
+            clearInterval(animation.timeout);
+            delete animation.timeout;
+        }
+    } else if (animation.requestAnimationFrame) animation.requestAnimationFrame(animation._animate);
 };
 
 animation.ease = {};
@@ -2016,6 +2030,82 @@ animation.insert = function(c, a, b) {
     b(c, a);
     animation(a).from("opacity", 0).to("opacity", 1).duration(400).go();
 };
+
+var Button = function() {
+    var b = "uiButtonDisabled";
+    var a = "uiButtonDepressed";
+    var d = "button:blocker";
+    var c = "href";
+    function e(j, i) {
+        var h = DataStore.get(j, d);
+        if (i) {
+            if (h) {
+                h.remove();
+                DataStore.remove(j, d);
+            }
+        } else if (!h) DataStore.set(j, d, Event.listen(j, "click", bagof(false), Event.Priority.URGENT));
+    }
+    function f(h) {
+        var i = Parent.byClass(h, "uiButton");
+        if (!i) throw new Error("invalid use case");
+        return i;
+    }
+    function g(h) {
+        return DOM.isNode(h, "a");
+    }
+    return {
+        getInputElement: function(h) {
+            h = f(h);
+            if (g(h)) throw new Error("invalid use case");
+            return DOM.find(h, "input");
+        },
+        isEnabled: function(h) {
+            return !CSS.hasClass(f(h), b);
+        },
+        setEnabled: function(k, h) {
+            k = f(k);
+            CSS.conditionClass(k, b, !h);
+            if (g(k)) {
+                var i = k.href;
+                var l = DataStore.get(k, c, "#");
+                if (h) {
+                    if (!i) k.href = l;
+                } else {
+                    if (i && i !== l) DataStore.set(k, c, i);
+                    k.removeAttribute("href");
+                }
+                e(k, h);
+            } else {
+                var j = Button.getInputElement(k);
+                j.disabled = !h;
+                e(j, h);
+            }
+        },
+        setDepressed: function(i, h) {
+            CSS.conditionClass(f(i), a, h);
+        },
+        isDepressed: function(h) {
+            return CSS.hasClass(f(h), a);
+        },
+        setLabel: function(i, h) {
+            i = f(i);
+            if (g(i)) {
+                var j = DOM.find(i, "span.uiButtonText");
+                DOM.setContent(j, h);
+            } else Button.getInputElement(i).value = h;
+            CSS.conditionClass(i, "uiButtonNoText", !h);
+        },
+        setIcon: function(i, h) {
+            if (!DOM.isNode(h)) return;
+            CSS.addClass(h, "customimg");
+            i = f(i);
+            var j = DOM.scry(i, ".img")[0];
+            if (j != h) if (j) {
+                DOM.replace(j, h);
+            } else DOM.prependContent(i, h);
+        }
+    };
+}();
 
 function show() {
     for (var b = 0; b < arguments.length; b++) {
@@ -2228,8 +2318,8 @@ add_properties("Form", {
         }
         return d;
     },
-    getFirstElement: function(b) {
-        var f = [ 'input[type="text"]', "textarea", 'input[type="password"]', 'input[type="button"]', 'input[type="submit"]' ];
+    getFirstElement: function(b, f) {
+        f = f || [ 'input[type="text"]', "textarea", 'input[type="password"]', 'input[type="button"]', 'input[type="submit"]' ];
         var e = [];
         for (var c = 0; c < f.length && e.length == 0; c++) e = DOM.scry(b, f[c]);
         if (e.length > 0) {
@@ -2292,6 +2382,7 @@ function Dialog(a) {
     this._shim = null;
     this._hidden_objects = [];
     this._causal_elem = null;
+    this._previous_focus = null;
     if (a) this._setFromModel(a);
     Dialog._init();
 }
@@ -2744,6 +2835,8 @@ copy_properties(Dialog.prototype, {
                 this._onload_handlers[f]();
             } catch (e) {}
             this._onload_handlers = [];
+            this._previous_focus = document.activeElement;
+            this._obj.focus();
         } else this.showLoading();
         var c = 2 * Dialog._BORDER_WIDTH;
         if (Dialog._useCSSBorders) c += 2 * Dialog._HALO_WIDTH;
@@ -2790,8 +2883,8 @@ copy_properties(Dialog.prototype, {
                     className: "uiButton uiButtonLarge uiButtonConfirm"
                 }, d);
                 if (b.className) {
-                    b.className.split(/\s+/).each(function(h) {
-                        CSS.addClass(e, h);
+                    b.className.split(/\s+/).each(function(g) {
+                        CSS.addClass(e, g);
                     });
                     if (CSS.hasClass(e, "inputaux")) {
                         CSS.removeClass(e, "inputaux");
@@ -2799,18 +2892,11 @@ copy_properties(Dialog.prototype, {
                     }
                     if (CSS.hasClass(e, "uiButtonSpecial")) CSS.removeClass(e, "uiButtonConfirm");
                 }
-                if (b.icon) {
-                    var g = $N("img", {
-                        src: b.icon
-                    });
-                    if (b.right_icon) {
-                        CSS.addClass(g, "mls");
-                        DOM.appendContent(e, g);
-                    } else {
-                        CSS.addClass(g, "mrs");
-                        DOM.prependContent(e, g);
-                    }
-                }
+                if (b.icon) DOM.prependContent(e, $N("img", {
+                    src: b.icon,
+                    className: "img mrs"
+                }));
+                if (b.disabled) Button.setEnabled(e, false);
                 Event.listen(d, "click", this._handleButton.bind(this, b.name));
                 for (var a in b) if (a.indexOf("data-") === 0 && a.length > 5) d.setAttribute(a, b[a]);
                 c.push(e);
@@ -2818,14 +2904,19 @@ copy_properties(Dialog.prototype, {
         }
         return c;
     },
-    _renderDialog: function(b) {
+    _renderDialog: function(c) {
         if (!this._obj) this._buildDialog();
         if (this._class_name) CSS.addClass(this._obj, this._class_name);
         CSS.conditionClass(this._obj, "full_bleed", this._full_bleed);
-        if (typeof b == "string") b = HTML(b).setDeferred(this._immediate_rendering !== true);
-        DOM.setContent(this._content, b);
+        if (typeof c == "string") c = HTML(c).setDeferred(this._immediate_rendering !== true);
+        DOM.setContent(this._content, c);
         this._showDialog();
-        if (this._auto_focus) Form.focusFirst.bind(this, this._content).defer();
+        if (this._auto_focus) {
+            var d = Form.getFirstElement(this._content, [ 'input[type="text"]', "textarea", 'input[type="password"]' ]);
+            if (d) Form.focusFirst.bind(this, this._content).defer();
+            var b = Form.getFirstElement(this._content, [ 'input[type="button"]', 'input[type="submit"]' ]);
+            if (b) this.setClickButtonOnEnter(this._uniqueID, b);
+        }
         var a = Vector2.getElementDimensions(this._content).y + Vector2.getElementPosition(this._content).y;
         Dialog._bottoms.push(a);
         this._bottom = a;
@@ -2838,7 +2929,6 @@ copy_properties(Dialog.prototype, {
             tabIndex: "0"
         });
         this._obj.setAttribute("role", "alertdialog");
-        this._obj.setAttribute("aria-labelledby", "title_" + this._uniqueID);
         this._obj.style.display = "none";
         document.body.appendChild(this._obj);
         if (!this._popup) this._popup = $N("div", {
@@ -2961,6 +3051,7 @@ copy_properties(Dialog.prototype, {
             a.splice(a.indexOf(this._bottom), 1);
             Dialog._updateMaxBottom();
         }
+        if (this._previous_focus && document.activeElement && DOM.contains(this._obj, document.activeElement)) this._previous_focus.focus();
         if (d) return;
         this.destroy();
     },
@@ -3028,11 +3119,6 @@ function AsyncRequest(uri) {
     var dispatchResponse = bind(this, function(asyncResponse) {
         try {
             this.clearStatusIndicator();
-            this._measureSaved && this._measureSaved();
-            if (this._isPrefetch) {
-                this._isPrefetch = false;
-                return;
-            }
             if (!this.isRelevant()) {
                 invokeErrorHandler(1010);
                 return;
@@ -3347,8 +3433,7 @@ function AsyncRequest(uri) {
             handleErrorAfterUnload: false
         },
         _replayable: undefined,
-        _replayKey: "",
-        _isPrefetch: false
+        _replayKey: ""
     });
     this.errorHandler = AsyncResponse.defaultErrorHandler;
     this.transportErrorHandler = bind(this, "errorHandler");
@@ -3491,9 +3576,6 @@ copy_properties(AsyncRequest, {
         (new AsyncRequest(b)).setReadOnly(false).setMethod("POST").setData(a).send();
         return false;
     },
-    clearCache: function() {
-        AsyncRequest._reqsCache = {};
-    },
     getLastId: function() {
         return AsyncRequest._last_id;
     },
@@ -3505,7 +3587,6 @@ copy_properties(AsyncRequest, {
     REPLAYABLE_AJAX: "ajax/replayable",
     _last_id: 2,
     _id_threshold: 2,
-    _reqsCache: {},
     _inflight: [],
     _inflightAdd: bagofholding,
     _inflightPurge: bagofholding,
@@ -3736,18 +3817,12 @@ copy_properties(AsyncRequest.prototype, {
         if (this.setNectarImpressionId) this.setNectarImpressionId();
         return this;
     },
-    setPrefetch: function(a) {
-        this._isPrefetch = a;
-        this.setAllowCrossPageTransition(true);
-        return this;
-    },
     setAllowCrossPageTransition: function(a) {
         this._allowCrossPageTransition = !!a;
         if (this.timer) this.resetTimeout(this.timeout);
         return this;
     },
     send: function(c) {
-        if (this._checkCache && this._checkCache()) return true;
         c = c || false;
         if (!this.uri) return false;
         !this.errorHandler && !this.getOption("suppressErrorHandlerWarning");
@@ -4089,78 +4164,4 @@ onloadRegister(function() {
     });
 });
 
-var Button = function() {
-    var b = "uiButtonDisabled";
-    var a = "uiButtonDepressed";
-    var d = "button:blocker";
-    var c = "href";
-    function e(j, i) {
-        var h = DataStore.get(j, d);
-        if (i) {
-            if (h) {
-                h.remove();
-                DataStore.remove(j, d);
-            }
-        } else if (!h) DataStore.set(j, d, Event.listen(j, "click", bagof(false), Event.Priority.URGENT));
-    }
-    function f(h) {
-        var i = Parent.byClass(h, "uiButton");
-        if (!i) throw new Error("invalid use case");
-        return i;
-    }
-    function g(h) {
-        return DOM.isNode(h, "a");
-    }
-    return {
-        getInputElement: function(h) {
-            h = f(h);
-            if (g(h)) throw new Error("invalid use case");
-            return DOM.find(h, "input");
-        },
-        isEnabled: function(h) {
-            return !CSS.hasClass(f(h), b);
-        },
-        setEnabled: function(k, h) {
-            k = f(k);
-            CSS.conditionClass(k, b, !h);
-            if (g(k)) {
-                var i = k.href;
-                var l = DataStore.get(k, c, "#");
-                if (h) {
-                    if (!i) k.href = l;
-                } else {
-                    if (i && i !== l) DataStore.set(k, c, i);
-                    k.removeAttribute("href");
-                }
-                e(k, h);
-            } else {
-                var j = Button.getInputElement(k);
-                j.disabled = !h;
-                e(j, h);
-            }
-        },
-        setDepressed: function(i, h) {
-            CSS.conditionClass(f(i), a, h);
-        },
-        isDepressed: function(h) {
-            return CSS.hasClass(f(h), a);
-        },
-        setLabel: function(i, h) {
-            i = f(i);
-            if (g(i)) {
-                var j = DOM.find(i, "span.uiButtonText");
-                DOM.setContent(j, h);
-            } else Button.getInputElement(i).value = h;
-            CSS.conditionClass(i, "uiButtonNoText", !h);
-        },
-        setIcon: function(i, h) {
-            if (!DOM.isNode(h)) return;
-            CSS.addClass(h, "customimg");
-            i = f(i);
-            var j = DOM.scry(i, ".img")[0];
-            if (j) {
-                DOM.replace(j, h);
-            } else DOM.prependContent(i, h);
-        }
-    };
-}();
+window.__UIControllerRegistry = window.__UIControllerRegistry || {};

@@ -863,19 +863,6 @@ Function.prototype.defer = function(b, a) {
     return setTimeout(this, b, a);
 };
 
-Function.prototype.postpone = function(a) {
-    if (this._postpone) {
-        clearTimeout(this._postpone);
-        delete this._postpone;
-    }
-    if (a != null && a >= 0) this._postpone = setTimeout(this, a);
-};
-
-Function.prototype.recur = function(b, a) {
-    if (typeof this != "function") throw new TypeError;
-    return setInterval(this, b, a);
-};
-
 function bagofholding() {}
 
 function bagof(a) {
@@ -1001,7 +988,7 @@ CSS = window.CSS || {
     },
     removeClass: function(b, a) {
         b = $(b);
-        b.className = b.className.replace(new RegExp("(^|\\s)" + a + "(?:\\s|$)", "g"), "$1");
+        if (CSS.hasClass(b, a)) b.className = b.className.replace(new RegExp("(^|\\s)" + a + "(?:\\s|$)", "g"), "$1");
         return b;
     },
     toggleClass: function(b, a) {

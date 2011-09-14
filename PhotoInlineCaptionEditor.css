@@ -1,7 +1,7 @@
 .async_throbber .async_saving{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat right;padding-right:20px}
 .async_throbber_left .async_saving{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat left;padding-left:20px}
-#blueBar.nph{background-color:#3b5998;height:41px;left:0;position:relative;width:100%;z-index:3}
-#blueBar #pageHead.nph{margin:0 auto;width:981px}
+#blueBar{background-color:#3b5998;left:0;position:relative;width:100%;z-index:3}
+#blueBar #pageHead{margin:0 auto;width:981px}
 #globalContainer{margin:0 auto;position:relative}
 .fbx #globalContainer{width:981px}
 .fbx #tab_canvas > div{padding-top:0}
@@ -45,10 +45,10 @@
 .pop_content_old{position:relative}
 .pop_container{direction:ltr;position:relative;top:10px}
 .pop_topleft,.pop_topright,.pop_bottomleft,.pop_bottomright{height:10px;width:10px;overflow:hidden;position:absolute}
-.pop_topleft{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-51px -417px;left:-10px;top:-10px}
-.pop_topright{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-40px -417px;right:-10px;top:-10px}
-.pop_bottomleft{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-73px -417px;bottom:-10px;left:-10px}
-.pop_bottomright{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-62px -417px;right:-10px;bottom:-10px}
+.pop_topleft{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-406px -422px;left:-10px;top:-10px}
+.pop_topright{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-395px -422px;right:-10px;top:-10px}
+.pop_bottomleft{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-428px -422px;bottom:-10px;left:-10px}
+.pop_bottomright{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-417px -422px;right:-10px;bottom:-10px}
 .pop_verticalslab,.pop_horizontalslab{width:100%;height:100%;position:absolute;background:#525252;opacity:.7}
 .pop_verticalslab{margin:-10px 0 0;padding-bottom:20px}
 .pop_horizontalslab{margin:0 0 0 -10px;padding-right:20px}
@@ -76,7 +76,7 @@ body.generic_dialog_overflow_mode{overflow:hidden}
 .pop_content .dialog_buttons_msg{float:left;line-height:17px;padding-top:4px}
 .pop_content .dialog_footer{background:#F2F2F2 none repeat scroll 0}
 .full_bleed .pop_content .dialog_body{padding:0}
-.uiButton,.uiButtonSuppressed:active,.uiButtonSuppressed:focus,.uiButtonSuppressed:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:0 -245px;background-color:#eee;border:1px solid #999;border-bottom-color:#888;box-shadow:0 1px 0 rgba(0, 0, 0, .1);cursor:pointer;display:-moz-inline-box;display:inline-block;font-size: 11px;font-weight:bold;line-height:normal !important;padding:2px 6px;text-align:center;text-decoration:none;vertical-align:top;white-space:nowrap}
+.uiButton,.uiButtonSuppressed:active,.uiButtonSuppressed:focus,.uiButtonSuppressed:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:0 -245px;background-color:#eee;border:1px solid #999;border-bottom-color:#888;box-shadow:0 1px 0 rgba(0, 0, 0, .1);cursor:pointer;display:-moz-inline-box;display:inline-block;font-size: 11px;font-weight:bold;line-height:normal !important;padding:2px 6px;text-align:center;text-decoration:none;vertical-align:top;white-space:nowrap}
 .uiButton + .uiButton{margin-left:4px}
 .uiButton:hover{text-decoration:none}
 .uiButton:active,.uiButtonDepressed{background:#ddd;border-bottom-color:#999;box-shadow:0 1px 0 rgba(0, 0, 0, .05)}
@@ -84,10 +84,10 @@ body.generic_dialog_overflow_mode{overflow:hidden}
 .uiButtonLarge .img{margin-top:4px}
 .uiButton .customimg{margin-top:0}
 .uiButton .uiButtonText,.uiButton input{background:none;border:0;color:#333;cursor:pointer;display:-moz-inline-box;display:inline-block;font-family:'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;font-size: 11px;font-weight:bold;margin:0;outline:none;padding:1px 0 2px;white-space:nowrap}
-.uiButtonSpecial{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:0 -49px;background-color:#69a74e;border-color:#3b6e22 #3b6e22 #2c5115}
+.uiButtonSpecial{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:0 -49px;background-color:#69a74e;border-color:#3b6e22 #3b6e22 #2c5115}
 .uiButtonSpecial:active{background:#609946;border-bottom-color:#3b6e22}
 .async_saving .uiButton.uiButtonSpecial,.uiButtonSpecial.uiButtonDisabled,.uiButtonSpecial.uiButtonDisabled:active,.uiButtonSpecial.uiButtonDisabled:focus,.uiButtonSpecial.uiButtonDisabled:hover{background:#b4d3a7;border-color:#9db791}
-.uiButtonConfirm{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:0 -294px;background-color:#5b74a8;border-color:#29447e #29447e #1a356e}
+.uiButtonConfirm{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:0 -294px;background-color:#5b74a8;border-color:#29447e #29447e #1a356e}
 .uiButtonConfirm:active{background:#4f6aa3;border-bottom-color:#29447e}
 .async_saving .uiButton.uiButtonConfirm,.uiButtonConfirm.uiButtonDisabled,.uiButtonConfirm.uiButtonDisabled:active,.uiButtonConfirm.uiButtonDisabled:focus,.uiButtonConfirm.uiButtonDisabled:hover{background:#adbad4;border-color:#94a2bf}
 .async_saving .uiButton.uiButtonSpecial .uiButtonText,.async_saving .uiButton.uiButtonSpecial input,.async_saving .uiButton.uiButtonConfirm .uiButtonText,.async_saving .uiButton.uiButtonConfirm input,.uiButtonSpecial .uiButtonText,.uiButtonSpecial input,.uiButtonSpecial.uiButtonDisabled .uiButtonText,.uiButtonSpecial.uiButtonDisabled input,.uiButtonConfirm .uiButtonText,.uiButtonConfirm input,.uiButtonConfirm.uiButtonDisabled .uiButtonText,.uiButtonConfirm.uiButtonDisabled input{color:#fff}
@@ -100,7 +100,6 @@ body.generic_dialog_overflow_mode{overflow:hidden}
 .uiButtonNoText .img{margin-left:-1px;margin-right:-1px}
 .android .uiButton .uiButtonText,.android .uiButton input{padding:3px 0 1px 1px}
 .uiButtonOverlay{background-clip:padding-box;background-color:#fff;background-color:rgba(255, 255, 255, .8);background-image:none;border-color:#ccc;border-color:rgba(0, 0, 0, .2);border-radius:2px;box-shadow:1px solid transparent}
-.uiButtonOverlay input,.uiButtonOverlay .uiButtonText{color:#444}
 .uiButtonOverlay:hover{background-color:rgba(255, 255, 255, 1)}
 .uiButtonOverlay:active{background-clip:padding-box;background-color:#f9fafc;background-color:rgba(249, 250, 252, .9);border-color:rgba(59, 89, 152, .5)}
 .uiCloseButton{cursor:pointer;display:-moz-inline-box;display:inline-block;margin:0;padding:0;zoom:1}

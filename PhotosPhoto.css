@@ -113,6 +113,6 @@
 .fbPhotoSnowboxInfo .fbPhotosPhotoUfi{width:auto}
 .fbPhotoSnowbox .fbPhotoSnowboxInfo .fbPhotoContributor{width:90%;max-width:515px;min-width:390px}
 .fbPhotoSnowboxInfo .photoDetailsContainer{width:100%;max-width:280px;float:right}
-.dataLoading .fbPhotoSnowboxInfo .fbPhotoUfiCol *,.dataLoading .fbPhotoSnowboxInfo .fbPhotoDataCol *{display:none}
+.dataLoading .fbPhotoSnowboxInfo .fbPhotoUfiCol,.dataLoading .fbPhotoSnowboxInfo .fbPhotoDataCol{display:none}
 
 #bootloader_kkZVg { height: 42px; }

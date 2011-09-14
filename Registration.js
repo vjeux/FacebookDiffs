@@ -98,7 +98,7 @@ var Registration = function() {
             if (!a) a = ge("name") ? "name" : "firstname";
             this.errorField = a;
             try {
-                $(a).setAttribute("title", c);
+                $(a).setAttribute("title", c.replace(/<.+?>/g, ""));
                 $(a).focus();
             } catch (b) {}
             DOM.setContent(e, HTML(c));

@@ -264,6 +264,12 @@ var PhotoPermalink = {
     setErrorBoxContent: function(a) {
         DOM.setContent(this.errorBox, a);
     },
+    updateTotalCount: function(c, b, a) {
+        element = ge("fbPhotoPagePositionAndCount");
+        element && DOM.setContent(element, a);
+        this.stream.setTotalCount(c);
+        this.stream.setFirstCursorIndex(b);
+    },
     buttonListener: function(event) {
         var a = event.getTarget();
         if (Parent.byClass(a, "likeButton")) {
@@ -416,7 +422,8 @@ var PhotoCropper = {
         if (this.photocrop) this.destroy();
         this.root = c;
         this.options = b || {};
-        var a = DOM.scry(this.root, "a.fbPhotoActionsCrop");
+        this.actionLinks = DOM.find(this.root, "div.fbPhotosPhotoActions");
+        var a = DOM.scry(this.actionLinks, "a.fbPhotoActionsCrop");
         if (a.length === 0) return;
         var d = this.start.bind(this);
         Event.listen(a[0], "click", function() {
@@ -427,6 +434,11 @@ var PhotoCropper = {
     },
     start: function() {
         if (this.photocrop) return;
+        this.cropLink = DOM.find(this.actionLinks, "a.fbPhotoActionsCrop");
+        if (CSS.hasClass(this.cropLink, "profileAlbum")) {
+            this.reuseProfilePic();
+            return false;
+        }
         CSS.addClass(this.root, "croppingMode");
         var d = DOM.find(this.root, "img.fbPhotoImage");
         var b = DOM.find(this.root, "a.doneCroppingLink");
@@ -446,19 +458,17 @@ var PhotoCropper = {
         return false;
     },
     done: function() {
-        var c = PhotoPermalink.getCurrentPhotoInfo();
-        var e = this.options.uid;
-        var b = DOM.find(this.root, "a.fbPhotoActionsCrop");
-        if (CSS.hasClass(b, "makePageProfile")) e = c.owner;
+        var b = PhotoPermalink.getCurrentPhotoInfo();
+        var d = this.getProfilePicTarget(b).id;
         var a = this.destroy();
-        var d = copy_properties({
-            pid: c.pid,
-            owner: c.owner,
-            id: e,
-            "return": "profile.php?id=" + e,
-            error_return: "photo.php?pid=" + c.pid + "&id=" + c.owner
+        var c = copy_properties({
+            pid: b.pid,
+            owner: b.owner,
+            id: d,
+            "return": "profile.php?id=" + d,
+            error_return: "photo.php?pid=" + b.pid + "&id=" + b.owner
         }, a);
-        Form.post("/crop_profile_pic.php", d);
+        Form.post("/crop_profile_pic.php", c);
         return false;
     },
     cancel: function() {
@@ -473,6 +483,29 @@ var PhotoCropper = {
             this.photocrop = null;
             return a;
         }
+    },
+    reuseProfilePic: function() {
+        var a = PhotoPermalink.getCurrentPhotoInfo();
+        var c = this.getProfilePicTarget(a);
+        var b = copy_properties({
+            pid: a.pid,
+            owner: a.owner,
+            id: c.id,
+            type: c.type,
+            profile_pic_id: c.id
+        });
+        Form.post("/pic_upload.php", b);
+        return false;
+    },
+    getProfilePicTarget: function(a) {
+        if (CSS.hasClass(this.cropLink, "makePageProfile")) return {
+            id: a.owner,
+            type: "object"
+        };
+        return {
+            id: this.options.uid,
+            type: "profile"
+        };
     }
 };
 

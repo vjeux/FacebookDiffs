@@ -1,5 +1,5 @@
 if (window.CavalryLogger) {
-    CavalryLogger.start_js([ "7UzVi" ]);
+    CavalryLogger.start_js([ "cbK2N" ]);
 }
 
 function FutureProfileSideNav() {
@@ -151,32 +151,56 @@ copy_properties(KeyEventController.prototype, {
     }
 });
 
+(function() {
+    function a(d, f, c, b) {
+        var e;
+        return function() {
+            var g = arguments;
+            var h = this;
+            var i = function() {
+                e = null;
+                d.apply(h, g);
+            };
+            c && clearTimeout(e);
+            if (c || !e) e = setTimeout(i, f, b);
+        };
+    }
+    window.debounce = function(c, d, b) {
+        return a(c, d, true, b);
+    };
+    window.throttle = function(c, d, b) {
+        return a(c, d, false, b);
+    };
+})();
+
 function OnVisible(b, c, f, a, d) {
     d = d || {};
     this.buffer = coalesce(a, 300);
     this.lastY = Vector2.getScrollPosition().y;
     this.lastTime = +(new Date);
-    var e = function() {
+    var e = throttle(function() {
         this.targetY = Vector2.getElementPosition(b).y;
         var l = Vector2.getScrollPosition().y;
         var j = Vector2.getViewportDimensions().y;
         var k = l + j + this.buffer;
-        var i = !f || Vector2.getScrollPosition().y - this.buffer < this.targetY + Vector2.getElementDimensions(b).y;
-        if (i && k > this.targetY) {
-            this.remove();
-            if (d.detect_speed) {
-                var g = l - this.lastY;
-                var h = g / (+(new Date) - this.lastTime + 1);
-                if (h > j / 100 || k >= Vector2.getDocumentDimensions().y && g > 1e3) return true;
+        if (k > this.targetY) {
+            var i = !f || l - this.buffer < this.targetY + Vector2.getElementDimensions(b).y;
+            if (i) {
+                this.remove();
+                if (d.detect_speed) {
+                    var g = l - this.lastY;
+                    var h = g / (+(new Date) - this.lastTime + 1);
+                    if (h > j / 100 || k >= Vector2.getDocumentDimensions().y && g > 1e3) return true;
+                }
+                c();
             }
-            c();
         }
         if (d.detect_speed) {
             this.lastY = l;
             this.lastTime = +(new Date);
         }
         return true;
-    }.bind(this);
+    }.bind(this), 100);
     this.scrollListener = Event.listen(window, "scroll", e);
     this.resizeListener = Event.listen(window, "resize", e);
     e();
@@ -1102,7 +1126,6 @@ var PhotoSnowbox = {
         this.stageActions = DOM.find(a, "div.stageActions");
         this.buttonActions = DOM.find(this.stageActions, "div.fbPhotosPhotoButtons");
         this.actionList = ge("fbPhotoSnowboxActions");
-        Event.listen(this.root, "click", this.closeListener.bind(this));
     },
     getRoot: function() {
         return this.root;
@@ -1149,7 +1172,7 @@ var PhotoSnowbox = {
         Arbiter.inform("new_layer");
         Arbiter.inform(PhotoSnowbox.OPEN);
         Bootloader.loadComponents([ "hovercard-core", "live-js", "photocrop2", "PhotoTag", "PhotoTagger", "TagToken", "TagTokenizer", "ui-ufi-css" ]);
-        this.stageHandlers = [ Event.listen(window, "resize", this.adjustForResize.bind(this)), Event.listen(this.stageWrapper, "click", this.buttonListener.bind(this)), Event.listen(this.stageWrapper, "dragstart", Event.kill), Event.listen(this.stageWrapper, "selectstart", Event.kill), Event.listen(this.actionList, "click", this.rotateListener.bind(this)) ];
+        this.stageHandlers = [ Event.listen(window, "resize", this.adjustForResize.bind(this)), Event.listen(this.root, "click", this.closeListener.bind(this)), Event.listen(this.stageWrapper, "click", this.buttonListener.bind(this)), Event.listen(this.stageWrapper, "dragstart", Event.kill), Event.listen(this.stageWrapper, "selectstart", Event.kill), Event.listen(this.actionList, "click", this.rotateListener.bind(this)) ];
         var a = ge("fbPhotoSnowboxFeedback");
         if (a) this.stageHandlers.push(Event.listen(a, "click", function(event) {
             if (Parent.byClass(event.getTarget(), "like_link")) CSS.toggleClass(DOM.find(this.buttonActions, "div.likeCommentGroup"), "viewerLikesThis");
@@ -1159,8 +1182,9 @@ var PhotoSnowbox = {
             if (Parent.byClass(event.getTarget(), "fbPhotoRemoveFromProfileLink")) this.refreshOnClose = true;
         }.bind(this)));
         PageTransitions.registerHandler(function(e) {
-            if (this.isOpen && !e.getQueryData().makeprofile) {
+            if (this.isOpen && !e.getQueryData().makeprofile && !this.returningToStart) {
                 this.close();
+                PageTransitions.transitionComplete();
                 return true;
             }
             return false;
@@ -1222,15 +1246,15 @@ var PhotoSnowbox = {
         if (!c) if (a) {
             this.squashNextTransition(goURI.curry(a));
         } else this.squashNextTransition();
+        this.returningToStart = true;
+        var d = Arbiter.subscribe("page_transition", function() {
+            this.returningToStart = false;
+            Arbiter.unsubscribe(d);
+        });
         var f = this._uriStack.length;
         if (f < window.history.length) {
             window.history.go(-f);
         } else {
-            this.returningToStart = true;
-            var d = Arbiter.subscribe("page_transition", function() {
-                this.returningToStart = false;
-                Arbiter.unsubscribe(d);
-            });
             var e = PhotoSnowbox.startingURI;
             var b = (new URI(e)).removeQueryData("closeTheater");
             if (e.getQueryData().sk == "approve" && e.getPath() == "/profile.php") {
@@ -1241,8 +1265,8 @@ var PhotoSnowbox = {
         }
     },
     squashNextTransition: function(a) {
-        this.squashNext = true;
-        PageTransitions.registerHandler(function(b) {
+        PhotoSnowbox.squashNext = true;
+        PageTransitions.registerHandler(function _squash() {
             if (PhotoSnowbox.squashNext) {
                 PhotoSnowbox.squashNext = false;
                 if (a) a.defer();
@@ -1809,7 +1833,7 @@ var PhotoSnowbox = {
         this.adjustForNewData();
     },
     updateTotalCount: function(c, b, a) {
-        element = ge("fbPhotoSnowboxpositionAndCount");
+        element = ge("fbPhotoSnowboxPositionAndCount");
         element && DOM.setContent(element, a);
         this.stream.setTotalCount(c);
         this.stream.setFirstCursorIndex(b);

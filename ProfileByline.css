@@ -20,17 +20,19 @@ button.as_link .button_img{margin:0 6px 0 0;vertical-align:text-bottom;width:16p
 .UIActionLinks .uiBlingBox{color:#3b5998}
 
 .textMetrics{border:none;height:1px;overflow:hidden;padding:0;position:absolute;top:-9999999px}
+.ego_x{float:right;opacity:0}
+.ego_unit:hover .ego_x{opacity:1}
 .presenceIndicator{display:inline-block}
 .presenceIndicator .uiTooltipWrap{margin-left:-5px}
 .presenceIndicator i{display:inline-block;width:7px;height:14px}
-.presenceIndicator .online{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-493px -422px}
-.presenceIndicator .idle{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-493px -392px}
-.presenceIndicator .mobile{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-31px -417px;height:12px;width:8px}
-.presenceIndicator .offline{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-493px -407px}
+.presenceIndicator .online{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-493px -407px}
+.presenceIndicator .idle{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-493px -392px}
+.presenceIndicator .mobile{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-386px -422px;height:12px;width:8px}
+.presenceIndicator .offline{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-493px -64px}
 .audienceSelector{text-align:left}
 .audienceSelector .uiSelectorButton .customimg{margin-left:-2px;margin-right:2px}
 .audienceSelector .uiButtonNoText .customimg{margin-right:-5px}
-.composerAudienceWrapper .uiSelectorButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/ye/r/Pnr6r6z8QXo.png);background-repeat:no-repeat;background-position:right -1px}
+.composerAudienceWrapper .uiSelectorButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:right -1px}
 .composerAudienceWrapper .uiButton .uiButtonText{color:#808080;font-weight:normal}
 .composerAudienceWrapper .audienceSelector .uiSelectorButton .customimg{opacity:.5}
 .composerAudienceWrapper:hover .uiButton .uiButtonText{color:#333}
@@ -48,6 +50,7 @@ div.labeledVisibilitySelector .uiSelectorButton .customimg{margin:0 2px 0 0}
 .fbProfileByline{width:493px;margin-top:4px;line-height:15px}
 .fbProfileBylineFragment{margin-right:8px;color:#666}
 .fbProfileBylineIcon{margin-bottom:1px;vertical-align:bottom}
+.fbProfileLoggedOutByline{width:493px;margin-top:1px;line-height:14px}
 .profileHeader{margin-top:4px}
 .profileHeaderMain{width:513px}
 .profileHeaderMain h1{display:inline;margin-right:5px}
@@ -57,6 +60,7 @@ div.labeledVisibilitySelector .uiSelectorButton .customimg{margin:0 2px 0 0}
 .profileHeader .mainButton{vertical-align:top}
 .profileHeader .headerFormButton{display:inline}
 .profileHeader .headerActions{text-align:right}
+.profileHeader .FriendButton .uiButton,.profileHeader .subscribeButtonsContainer .uiButton{min-width:68px}
 .profileHeader .subtitle{line-height:15px;padding-top:4px;width:490px}
 .profileHeader .profileActions{float:left;margin-top:3px}
 .profileHeader .profileCallButton .img{margin-top:2px}
@@ -74,6 +78,8 @@ div.labeledVisibilitySelector .uiSelectorButton .customimg{margin:0 2px 0 0}
 span.edit_profilepicture_icon{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yA/r/QbfalTL4SQ2.png) no-repeat left 4px;height:18px;left:7px;opacity:.95;position:absolute;top:4px;width:18px}
 .profile-friends .profileFriendsContent{height:42px;line-height:14px;overflow:hidden}
 .profile-friends .profileFriendsText{overflow:hidden;text-overflow:ellipsis;width:102px;word-wrap:normal}
+.profile-friends .profileFriendsByline{width:172px}
+.profileFriendsByline{white-space:nowrap}
 .profileFriendsNetwork{white-space:nowrap}
 .profile-left-nav-facepile{margin:2px 6px 14px 6px}
 .relationshipSection:hover .fbProfileNavHeaderEditButton{display:block}
@@ -100,7 +106,7 @@ div.fbProfilePhotoThumbEmpty{background-color:#f2f2f2;border-top:1px solid #d9d9
 #profile_minifeed.uiReportStream .uiStreamHide,#profile_minifeed.uiReportStream .uiStreamHide .uiSelectorButton{opacity:1}
 .fbProfileStream .uiStreamMessage .passiveName{font-weight:normal}
 .fbProfileStream .uiStreamMessage a.passiveName{font-weight:bold}
-.uiUfiLikeIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yB/r/fDUBLG2Yyh7.png);background-repeat:no-repeat;background-position:-14px -153px;display:block;height:13px;width:15px}
+.uiUfiLikeIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yZ/r/ru0FS0ehQBH.png);background-repeat:no-repeat;background-position:-14px -152px;display:block;height:13px;width:15px}
 .uiUfiLikeIconDisabled,.uiUfiLikeIconDisabled:active,.uiUfiLikeIconDisabled:focus{cursor:default;outline:none}
 .uiLinkButton input{background:none;border:none;color:#3b5998;cursor:pointer;font-family:'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;font-size: 11px;margin:0;padding:0;vertical-align:top}
 .uiLinkButton:hover,.uiLinkButton input:hover,.uiLinkButton input:focus,.uiLinkButton input:active{color:#3b5998;text-decoration:underline}
@@ -166,8 +172,8 @@ div.uiMetaComposerMessageBox .composerTypeahead .placeholder{font-size: 13px;pad
 .uiMetaComposerMessageBox .attachmentBarArea .uiComposerTagControlOpen{background-color:#fafafa;border-top:1px solid #f2f2f2;margin-top:-1px}
 .uiMetaComposerMessageBox .uiComposerBarRightArea{margin:4px}
 .uiMetaComposerMessageBox .submitBtn{padding:2px 16px}
-.uiMetaComposerMessageBox .disabledFriendListButton{border-color:transparent}
-.uiMetaComposerMessageBox .disabledFriendListButton input{font-weight:normal;color:#808080}
+.uiMetaComposerMessageBox .disabledFriendListButton,.uiMetaComposerMessageBox .disabledFriendListButton:active,.uiMetaComposerMessageBox .disabledFriendListButton:focus,.uiMetaComposerMessageBox .disabledFriendListButton:hover{border-color:transparent}
+.uiMetaComposerMessageBox .disabledFriendListButton .uiButtonText{font-weight:normal;color:#808080}
 .uiMetaComposer .ComposerCitySharer{color:#808080;line-height:30px}
 .uiMetaComposer .ComposerCitySharer .uiCloseButton{margin:-4px 0 0 3px}
 .uiMetaComposer .friendsTokenizer{border:0;border-top:1px dashed #bdc7d8;padding:0}
@@ -178,10 +184,10 @@ div.uiMetaComposerMessageBox .composerTypeahead .placeholder{font-size: 13px;pad
 .uiMetaComposer .taggerLocationSharer{border:0;border-top:1px dashed #bdc7d8}
 .uiMetaComposer .taggerLocationSharer .wrap{border:0}
 .uiMetaComposer .taggerLocationSharer .uiStickyPlaceholderInput{width:100%}
-.uiMetaComposerMessageBox .friendTaggerIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -51px}
-.uiMetaComposerMessageBox .friendTaggerIconSelected{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -82px}
-.uiMetaComposerMessageBox .placeTaggerIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -113px}
-.uiMetaComposerMessageBox .placeTaggerIconSelected{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -144px}
+.uiMetaComposerMessageBox .friendTaggerIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-30px -94px}
+.uiMetaComposerMessageBox .friendTaggerIconSelected{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-60px -94px}
+.uiMetaComposerMessageBox .placeTaggerIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-90px -94px}
+.uiMetaComposerMessageBox .placeTaggerIconSelected{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:0 -94px}
 .uiIconText{padding-left:21px;position:relative}
 label.uiIconText{vertical-align:baseline}
 .uiIconText .img{left:0;position:absolute;top:-1px;vertical-align:middle}
@@ -190,14 +196,10 @@ label.uiIconText{vertical-align:baseline}
 .uiMentionsInput .highlighter{left:1px;overflow:hidden;position:absolute;padding:4px;top:1px}
 .uiMentionsInput .highlighter div{color:transparent;line-height:14px;white-space:pre-wrap;width:100%}
 .uiMentionsInput .highlighter b{background:#d8dfea;font-weight:normal}
-.uiSearchInput{background:#fff;border:1px solid #899bc1;border-top-color:#6484b4;display:inline-block}
-.uiSearchInput span{border:0;border-top:1px solid #ededed;display:inline-block;padding:1px 0 2px;position:relative}
-.uiSearchInput input{border:0;border-right:1px solid #e5e5e5;margin:0 22px 0 5px;outline:none;padding:1px 5px 2px 0;width:190px}
-.uiSearchInput button{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/lCznBcRYSg8.png);background-repeat:no-repeat;background-position:-262px -235px;background-color:#fff;border:0;cursor:pointer;display:block;height:19px;padding:0;position:absolute;right:0;top:0;width:22px}
 .uiSelector .uiCloseButton{background-clip:padding-box;border:1px solid transparent;margin:0}
 .uiSelector .openToggler .uiCloseButton{background-position:left -32px}
 .uiSelector .openToggler .uiCloseButtonSmall{background-position:left -24px}
-.uiMenu{background-color:#fff;border:1px solid #777;border-bottom:2px solid #293e6a;padding:3px 0 4px;overflow-y:auto}
+.uiMenu{background-color:#fff;padding:3px 0 4px;overflow-y:auto}
 .uiMenuItem .itemAnchor{border:solid #fff;border-width:1px 0;color:#111;display:block;font-weight:normal;line-height:16px;padding:1px 16px 1px 22px;text-decoration:none}
 .uiMenuItem a:hover{text-decoration:none}
 .uiMenuItem a:active,.uiMenuItem a:focus{background-color:#6d84b4;border-color:#3b5998;color:#fff;outline:none}
@@ -221,11 +223,11 @@ label.uiIconText{vertical-align:baseline}
 .uiSelector .uiSelectorButton:active{background-color:#ddd}
 .uiSelector .openToggler .uiSelectorButton,.uiSelector .openToggler .uiSelectorButton:active,.uiSelector .openToggler .uiSelectorButton:focus,.uiSelector .openToggler .uiSelectorButton:hover{background-color:#6d84b4;border:1px solid #3b5998;border-bottom-color:#6d84b4;box-shadow:none}
 .uiSelectorNormal .uiSelectorChevronOnly,.uiSelectorNormal .uiSelectorChevronOnly:active,.uiSelectorNormal .uiSelectorChevronOnly:focus,.uiSelectorNormal .uiSelectorChevronOnly:hover{height:20px;padding:0}
-.uiSelectorNormal .uiSelectorButton,.uiSelectorNormal .uiSelectorButton:active,.uiSelectorNormal .uiSelectorButton:focus,.uiSelectorNormal .uiSelectorButton:hover,.uiSelectorNormal .uiButtonSuppressed:active,.uiSelectorNormal .uiButtonSuppressed:focus,.uiSelectorNormal .uiButtonSuppressed:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:right -343px;max-width:169px;padding-right:23px}
-.uiSelectorNormal .uiButtonDisabled,.uiSelectorNormal a.uiButtonDisabled:active,.uiSelectorNormal a.uiButtonDisabled:focus,.uiSelectorNormal a.uiButtonDisabled:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:right -196px}
-.uiSelectorNormal .uiButtonSuppressed.uiButtonDisabled{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:right 0}
-.uiSelectorNormal .uiSelectorButton:active,.uiSelectorNormal .uiButtonSuppressed{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:right -99px}
-.uiSelectorNormal .openToggler .uiSelectorButton,.uiSelectorNormal .openToggler .uiSelectorButton:active,.uiSelectorNormal .openToggler .uiSelectorButton:focus,.uiSelectorNormal .openToggler .uiSelectorButton:hover,.uiSelectorNormal .openToggler .uiButtonSuppressed,.uiSelectorNormal .openToggler .uiButtonSuppressed:active,.uiSelectorNormal .openToggler .uiButtonSuppressed:focus,.uiSelectorNormal .openToggler .uiButtonSuppressed:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:right -147px}
+.uiSelectorNormal .uiSelectorButton,.uiSelectorNormal .uiSelectorButton:active,.uiSelectorNormal .uiSelectorButton:focus,.uiSelectorNormal .uiSelectorButton:hover,.uiSelectorNormal .uiButtonSuppressed:active,.uiSelectorNormal .uiButtonSuppressed:focus,.uiSelectorNormal .uiButtonSuppressed:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:right -343px;max-width:169px;padding-right:23px}
+.uiSelectorNormal .uiButtonDisabled,.uiSelectorNormal a.uiButtonDisabled:active,.uiSelectorNormal a.uiButtonDisabled:focus,.uiSelectorNormal a.uiButtonDisabled:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:right -196px}
+.uiSelectorNormal .uiButtonSuppressed.uiButtonDisabled{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:right 0}
+.uiSelectorNormal .uiSelectorButton:active,.uiSelectorNormal .uiButtonSuppressed{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:right -99px}
+.uiSelectorNormal .openToggler .uiSelectorButton,.uiSelectorNormal .openToggler .uiSelectorButton:active,.uiSelectorNormal .openToggler .uiSelectorButton:focus,.uiSelectorNormal .openToggler .uiSelectorButton:hover,.uiSelectorNormal .openToggler .uiButtonSuppressed,.uiSelectorNormal .openToggler .uiButtonSuppressed:active,.uiSelectorNormal .openToggler .uiButtonSuppressed:focus,.uiSelectorNormal .openToggler .uiButtonSuppressed:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:right -147px}
 .uiSelectorNormal .uiSelectorButton .uiButtonText{max-width:169px;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
 .uiSelectorNormal .uiSelectorBigButtonLabel .img{float:left}
 .uiSelectorNormal .uiSelectorBigButtonLabel .uiButtonText{display:block}
@@ -234,6 +236,7 @@ label.uiIconText{vertical-align:baseline}
 .uiSelectorRight .uiSelectorMenuWrapper{left:auto;right:0}
 .uiSelectorMenuWrapper .loading{padding:5px 20px}
 .uiSelectorMenuWrapper .loading span{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat 0 0;display:-moz-inline-box;display:inline-block;height:11px;margin:0 auto;width:16px}
+.uiSelector .uiMenu{border:1px solid #777;border-bottom:2px solid #293e6a}
 .uiTextareaNoResize{resize:none}
 .uiTextareaAutogrow{overflow:hidden}
 .uiCollapsedList .visible{margin-right:10px}
@@ -297,7 +300,6 @@ label.uiIconText{vertical-align:baseline}
 .uiSideNavCount{background-color:#d8dfea;border-radius:2px;color:#3b5998;font-weight:bold;left:-1px;padding:0 4px;position:relative}
 .uiFutureSideNavSection .uiSideNavCount{padding-bottom:2px}
 .uiSideNavCountInline{display:inline-block;line-height:15px}
-.uiSideNavCountInline .count,.uiSideNavCountInline .countValue{display:block}
 .uiSideNav .async_saving .uiSideNavCount,.uiSideNav .loading .uiSideNavCount{display:none}
 .uiClownySideNavSection .uiSideNavCount{float:right}
 .uiClownySideNavSection .actionLinks span.uiSideNavCount{margin-right:4px}
@@ -309,7 +311,7 @@ label.uiIconText{vertical-align:baseline}
 .uiContextualDialogAbove .uiContextualDialog{bottom:0}
 .uiContextualDialogLeft .uiContextualDialog{right:0}
 .uiOverlay{position:relative;z-index:200}
-.uiOverlayContent{background:#fff;border:1px solid #666;border:1px solid rgba(0, 0, 0, .6);border-bottom:1px solid #2a4169;box-shadow:0 2px 5px rgba(0, 0, 0, .3);position:relative}
+.uiOverlayContent{background:#fff;border:1px solid #8c8c8c;border:1px solid rgba(0, 0, 0, .45);border-bottom:1px solid #666;box-shadow:0 3px 8px rgba(0, 0, 0, .3);position:relative}
 .uiOverlayFooter{text-align:right}
 .uiOverlayFooterMessage{width:100%}
 .uiOverlayFooterButtons{white-space:nowrap}
@@ -318,11 +320,11 @@ label.uiIconText{vertical-align:baseline}
 .uiOverlayArrowRight{padding-right:10px}
 .uiOverlayArrowBottom{padding-bottom:10px}
 .uiOverlayArrowLeft{padding-left:10px}
-.uiOverlayArrowTop .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -181px;height:9px;top:2px;width:15px}
-.uiOverlayArrowRight .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -191px;height:15px;right:2px;width:9px}
-.uiOverlayArrowBottom .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:0 -207px;bottom:2px;height:9px;width:15px}
-.uiOverlayWithFooterArrowBottom .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:-16px -181px}
-.uiOverlayArrowLeft .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yu/r/5GC63nys0Z9.png);background-repeat:no-repeat;background-position:-10px -191px;height:15px;left:2px;width:9px}
+.uiOverlayArrowTop .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-142px -68px;height:9px;top:2px;width:16px}
+.uiOverlayArrowRight .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-248px -94px;height:16px;right:2px;width:9px}
+.uiOverlayArrowBottom .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-108px -68px;bottom:2px;height:9px;width:16px}
+.uiOverlayWithFooterArrowBottom .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-125px -68px}
+.uiOverlayArrowLeft .uiOverlayArrow{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:-238px -94px;height:16px;left:2px;width:9px}
 .uiFacepileSmall ul{margin-top:-2px}
 .uiFacepileMedium ul{margin-top:-1px}
 .uiFacepileLarge ul{margin-top:-3px}
@@ -412,8 +414,6 @@ div.uiTypeaheadView .selected{background-color:#6d84b4;border-color:#3b5998}
 .typeaheadLoading .uiTypeaheadView .calltoaction span.text{visibility:hidden}
 .typeaheadLoading .uiTypeaheadView .calltoaction{background:#f7f7f7 url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat 50% 50%}
 .typeaheadLoading .uiTypeaheadView .calltoaction.selected{background:#6d84b4 url(http://static.ak.fbcdn.net/rsrc.php/v1/y-/r/AGUNXgX_Wx3.gif) no-repeat 50% 50%}
-.uiTypeaheadView .basic img{display:block;float:left;padding-right:4px}
-.uiTypeahead .uiTypeaheadView .basic .calltoaction{padding:3px}
 .uiTypeaheadView .compact li{min-height:32px;padding:2px 10px 2px 45px}
 .uiTypeaheadView .compact .splitpics,.uiTypeaheadView .compact img{display:block;height:32px;left:6px;position:absolute;width:32px}
 .uiTypeaheadView .compact .text{font-weight:bold}
@@ -433,7 +433,7 @@ div.uiTypeaheadView .selected{background-color:#6d84b4;border-color:#3b5998}
 .uiUfi .uiUfiSpamItem{background-color:#e2e2e2}
 .uiUfi .uiUfiUnseenItem{border-left:2px solid #a8b2ce;padding-left:3px}
 .uiUfi .ufiNub{margin-bottom:-2px;margin-top:0}
-.uiUfi .ufiNub i{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yp/r/P7K5KHuP9ni.png);background-repeat:no-repeat;background-position:-89px -397px;display:block;height:5px;margin-left:17px;width:9px}
+.uiUfi .ufiNub i{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y1/r/WUGF7ETcWHn.png);background-repeat:no-repeat;background-position:-133px -392px;display:block;height:5px;margin-left:17px;width:9px}
 .uiUfiAddComment .actorPic{float:left;margin-right:6px}
 .uiUfiAddComment .commentArea{padding:0 !important}
 .uiUfiAddComment .commentBox{padding:0 8px 0 0}
@@ -466,4 +466,4 @@ div.uiTypeaheadView .selected{background-color:#6d84b4;border-color:#3b5998}
 .uiUfiCommentFailed .uiUfiFailureMessage{color:#111}
 .uiUfiSmall .commentArea .textBox{height:14px}
 
-#bootloader_6dq9y { height: 42px; }
+#bootloader_Pdqij { height: 42px; }

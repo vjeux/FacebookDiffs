@@ -466,7 +466,7 @@ copy_properties(Datepicker, {
     }
 });
 
-Datepicker.prototype = {
+Class.mixin(Datepicker, "Arbiter", {
     init: function(f, g, d, b, e, a, c) {
         this.root = f;
         this.timestamp = new Date(g);
@@ -520,6 +520,7 @@ Datepicker.prototype = {
                 }
             }
         }.bind(this));
+        this.inform("initialized", this);
     },
     draw: function() {
         this.calendarDate.setDate(1);
@@ -571,7 +572,7 @@ Datepicker.prototype = {
         this.calendarDate.setTime(this.timestamp.getTime());
         this.draw();
     }
-};
+});
 
 function editor_two_level_change(b, d, e, c) {
     b = ge(b);
