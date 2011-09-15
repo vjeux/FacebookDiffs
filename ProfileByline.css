@@ -32,6 +32,19 @@ button.as_link .button_img{margin:0 6px 0 0;vertical-align:text-bottom;width:16p
 .audienceSelector{text-align:left}
 .audienceSelector .uiSelectorButton .customimg{margin-left:-2px;margin-right:2px}
 .audienceSelector .uiButtonNoText .customimg{margin-right:-5px}
+.showSecondaryOptions li,
+.audienceSelector .secondaryOption,
+.audienceSelector .returnOption{display:none}
+.showSecondaryOptions li,
+.audienceSelector .secondaryOption,
+.audienceSelector .returnOption{display:none}
+.showSecondaryOptions .returnOption,
+.showSecondaryOptions .secondaryOption,
+.group .groupOption,
+.friendList .friendListOption{display:block}
+.friendList .groupOption,
+.group .friendListOption{display:none}
+.showSecondaryOptions .uiSelectorMenu{max-height:214px;overflow-y:auto}
 .composerAudienceWrapper .uiSelectorButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yX/r/XT-G1AgJUb5.png);background-repeat:no-repeat;background-position:right -1px}
 .composerAudienceWrapper .uiButton .uiButtonText{color:#808080;font-weight:normal}
 .composerAudienceWrapper .audienceSelector .uiSelectorButton .customimg{opacity:.5}
@@ -39,10 +52,6 @@ button.as_link .button_img{margin:0 6px 0 0;vertical-align:text-bottom;width:16p
 .composerAudienceWrapper .openToggler .uiButton .uiButtonText{color:#fff}
 .composerAudienceWrapper:hover .audienceSelector .uiSelectorButton .customimg,.composerAudienceWrapper .openToggler .uiSelectorButton .customimg{opacity:1}
 .composerAudienceWrapper .selected .plusLabel{color:#fff}
-.showSecondaryOptions li,.audienceSelector .secondaryOption,.audienceSelector .returnOption{display:none}
-.showSecondaryOptions .returnOption,.showSecondaryOptions .secondaryOption,.group .groupOption,.friendList .friendListOption{display:block}
-.friendList .groupOption,.group .friendListOption{display:none}
-.showSecondaryOptions .uiSelectorMenu{max-height:214px;overflow-y:auto}
 .composerAudienceWrapper .uiSelector,.composerAudienceWrapper .uiSelectorNormal .uiSelectorButton,.composerAudienceWrapper .uiSelectorNormal .uiSelectorButton:active,.composerAudienceWrapper .uiSelectorNormal .uiSelectorButton:focus,.composerAudienceWrapper .uiSelectorNormal .uiSelectorButton:hover,.composerAudienceWrapper .uiSelectorNormal .uiButtonSuppressed:active,.composerAudienceWrapper .uiSelectorNormal .uiButtonSuppressed:focus,.composerAudienceWrapper .uiSelectorNormal .uiButtonSuppressed:hover,.composerAudienceWrapper .uiSelectorNormal .uiSelectorButton .uiButtonText{max-width:none}
 .composerAudienceWrapper .uiSelectorNormal .uiSelectorBigButtonLabel .uiButtonText{overflow:visible}
 div.visibilitySelector .uiSelectorButton .customimg{margin:0 -4px 0 -1px}
