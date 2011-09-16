@@ -1158,6 +1158,7 @@ var PhotoSnowbox = {
         this.stream = new PhotoStreamCache;
         this.stream.init(PhotosConst.VIEWER_SNOWBOX);
         this.fetchInitialData();
+        this.waitForLoadCount = 0;
         this.setLoadingState(PhotoSnowbox.STATE_HTML, true);
         KeyEventController.registerKey("ESCAPE", this.closeListener.bind(this));
         Bootloader.loadComponents([ "fb-photos-photo-css", "fb-photos-snowbox-css" ], function() {
@@ -1166,8 +1167,8 @@ var PhotoSnowbox = {
     },
     _open: function(d, c) {
         this.createLoader(c);
-        CSS.addClass(document.documentElement, "theaterMode");
         CSS.show(this.root);
+        CSS.addClass.curry(document.documentElement, "theaterMode").defer();
         this.stopWatch.showFrame = +(new Date);
         Arbiter.inform("new_layer");
         Arbiter.inform(PhotoSnowbox.OPEN);
@@ -1307,12 +1308,12 @@ var PhotoSnowbox = {
     close: function() {
         if (!this.isOpen) return;
         CSS.hide(this.root);
-        CSS.removeClass(document.documentElement, "theaterMode");
-        CSS.removeClass(this.root, "dataLoaded");
         this.openExplicitly = false;
         this.closeCleanup.bind(this).defer();
     },
     closeCleanup: function() {
+        CSS.removeClass(document.documentElement, "theaterMode");
+        CSS.removeClass(this.root, "dataLoaded");
         KeyEventController.getInstance().resetHandlers();
         PhotoSnowboxLog.setLoadedPhotosCount(this.stream.getLength());
         PhotoSnowboxLog.setWaitForLoadCount(this.waitForLoadCount);

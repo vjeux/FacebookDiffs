@@ -23,7 +23,7 @@
 .recaptcha_nothad_incorrect_sol .recaptcha_only_if_incorrect_sol{display:none !important}
 .recaptcha_whats_this{margin-left:15px;display:inline}
 .captcha_interstitial{border:1px solid #ccc;margin:20px auto;padding:20px;width:555px}
-div#blueBar.loggedOut{height:auto}
+.loggedOut #blueBar{height:auto}
 .fbIndex .uiWashLayoutBlueWash{background-color:#dde2ed}
 .fbIndex .contentContainer{margin:0 auto 0 auto;width:980px}
 .fbIndex .bodyWash{margin-bottom:0}

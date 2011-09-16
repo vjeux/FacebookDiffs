@@ -115,7 +115,7 @@ div.fbProfilePhotoThumbEmpty{background-color:#f2f2f2;border-top:1px solid #d9d9
 #profile_minifeed.uiReportStream .uiStreamHide,#profile_minifeed.uiReportStream .uiStreamHide .uiSelectorButton{opacity:1}
 .fbProfileStream .uiStreamMessage .passiveName{font-weight:normal}
 .fbProfileStream .uiStreamMessage a.passiveName{font-weight:bold}
-.uiUfiLikeIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yZ/r/ru0FS0ehQBH.png);background-repeat:no-repeat;background-position:-14px -152px;display:block;height:13px;width:15px}
+.uiUfiLikeIcon{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yG/r/GV1gcvcpYtq.png);background-repeat:no-repeat;background-position:-14px -152px;display:block;height:13px;width:15px}
 .uiUfiLikeIconDisabled,.uiUfiLikeIconDisabled:active,.uiUfiLikeIconDisabled:focus{cursor:default;outline:none}
 .uiLinkButton input{background:none;border:none;color:#3b5998;cursor:pointer;font-family:'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;font-size: 11px;margin:0;padding:0;vertical-align:top}
 .uiLinkButton:hover,.uiLinkButton input:hover,.uiLinkButton input:focus,.uiLinkButton input:active{color:#3b5998;text-decoration:underline}
@@ -303,6 +303,8 @@ label.uiIconText{vertical-align:baseline}
 .uiFutureSideNavSection .sideNavItem .uiSideNavEditButton{margin:2px 5px 0 0;text-align:left}
 .uiFutureSideNavSection .sideNavItem .uiCloseButton{opacity:0}
 .uiFutureSideNavSection .sideNavItem .uiCloseButton:focus,.uiFutureSideNavSection .sideNavItem:hover .uiCloseButton,.uiFutureSideNavSection .sideNavItem .openToggler .uiCloseButton{opacity:1}
+.uiNarrowSideNav .uiSideNavSection .sideNavItem:hover .buttonWrap,.uiNarrowSideNav .uiSideNavSection .hover .buttonWrap,.uiNarrowSideNav .uiSideNavSection .editMenuOpened .buttonWrap{padding-right:4px;width:25px}
+.uiNarrowSideNav .uiSideNavSection .sideNavItem:hover .item .rfloat,.uiNarrowSideNav .uiSideNavSection .hover .item .rfloat,.uiNarrowSideNav .uiSideNavSection .editMenuOpened .item .rfloat{display:none}
 .uiNarrowSideNav .uiSideNavSection .buttonWrap{float:right;margin-right:-2px;width:0}
 .uiNarrowSideNav .sideNavItem{padding-right:0;margin-left:0}
 .uiNarrowSideNav .sideNavItem .item,.uiNarrowSideNav .sideNavItem .subitem{margin-left:0;margin-right:0}

@@ -1,6 +1,6 @@
 .async_throbber .async_saving{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat right;padding-right:20px}
 .async_throbber_left .async_saving{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat left;padding-left:20px}
-#blueBar{background-color:#3b5998;left:0;position:relative;width:100%;z-index:3}
+#blueBar{background-color:#3b5998;left:0;min-width:981px;width:100%}
 #blueBar #pageHead{margin:0 auto;width:981px}
 #globalContainer{margin:0 auto;position:relative}
 .fbx #globalContainer{width:981px}
@@ -239,7 +239,7 @@ div.uiHeaderTopBorder{margin-left:0}
 .uiHeaderNav h4{color:#808080}
 .uiHeaderSection,.uiSideHeader{background-color:#f2f2f2;border-bottom:none;border-top:solid 1px #e2e2e2;padding:4px 5px 5px}
 .uiTooltip{position:relative}
-.uiTooltipActive,.uiTooltip:active,.uiTooltip:focus,.uiTooltip:hover{outline:none;text-decoration:none;z-index:2}
+.uiTooltipActive,.uiTooltip:active,.uiTooltip:focus,.uiTooltip:hover{outline:none;text-decoration:none;z-index:5}
 .uiTooltipWrap{display:none}
 .uiTooltipWrap:hover{visibility:hidden}
 .uiTooltipActive .uiTooltipWrap:hover{visibility:visible}

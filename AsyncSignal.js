@@ -1985,7 +1985,26 @@ animation.push = function(a) {
             animation.requestAnimationFrame(animation._animate);
         } else animation.timeout = setInterval(animation._animate, animation.resolution, false);
     }
+    if (animation.requestAnimationFrame) animation._updateEndingTimer();
     animation._animate((new Date).getTime(), true);
+};
+
+animation._updateEndingTimer = function() {
+    if (!animation.requestAnimationFrame) throw new Error("Ending timer only valid with requestAnimationFrame");
+    var d = 0;
+    for (var a = 0; a < animation.active.length; a++) {
+        var f = animation.active[a];
+        for (var e = 0; e < f.queue.length; e++) {
+            var b = f.queue[e].start + f.queue[e].duration;
+            if (b > d) d = b;
+        }
+    }
+    if (animation.timeout) {
+        clearTimeout(animation.timeout);
+        delete animation.timeout;
+    }
+    var c = (new Date).getTime();
+    if (d > c) animation.timeout = setTimeout(animation._animate, d - c, false);
 };
 
 animation._animate = function(d, c) {
@@ -1997,7 +2016,9 @@ animation._animate = function(d, c) {
     }
     if (animation.active.length === 0) {
         if (animation.timeout) {
-            clearInterval(animation.timeout);
+            if (animation.requestAnimationFrame) {
+                clearTimeout(animation.timeout);
+            } else clearInterval(animation.timeout);
             delete animation.timeout;
         }
     } else if (animation.requestAnimationFrame) animation.requestAnimationFrame(animation._animate);
