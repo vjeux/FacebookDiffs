@@ -71,8 +71,8 @@ img.tracking_pixel{height:1px;position:absolute;visibility:hidden;width:1px}
 #pageHead{margin:0 auto;width:980px}
 .fbx #pageHead{margin:0;width:auto}
 #pageLogo{float:left;margin-left:-6px;z-index:5}
-#pageLogo a{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-104px -235px;background-color:#3b5998;display:block;height:31px;width:103px}
-#pageLogo a:hover,#pageLogo a:focus,#pageLogo a:active{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:0 -235px;background-color:#4b67a1;outline:none}
+#pageLogo a{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-104px -235px;background-color:#3b5998;display:block;height:31px;width:103px}
+#pageLogo a:hover,#pageLogo a:focus,#pageLogo a:active{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:0 -235px;background-color:#4b67a1;outline:none}
 #headNav{background-color:#627aad;border:1px solid #1d4088;border-bottom:0;height:30px;margin-left:180px}
 #pageNav li{float:left}
 #pageNav a{color:#fff;display:block;display:inline-block;font-weight:bold;height:22px;padding:8px 10px 0 10px;text-decoration:none}
@@ -82,9 +82,9 @@ img.tracking_pixel{height:1px;position:absolute;visibility:hidden;width:1px}
 #navAccount #navAccountLink{padding-right:16px;zoom:1}
 .openToggler #navAccountLink,.no_js #navAccount:hover #navAccountLink{background-color:#fff;color:#333;position:relative;z-index:2}
 .openToggler #navAccountLink:hover,.openToggler #navAccountLink:focus,.openToggler #navAccountLink:active,.no_js #navAccountLink:hover{background-color:#fff}
-#navAccountLink .accountPulldown{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-298px -102px;height:4px;left:5px;position:relative;top:-2px;width:7px}
+#navAccountLink .accountPulldown{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-298px -102px;height:4px;left:5px;position:relative;top:-2px;width:7px}
 .openToggler #navAccountLink .dropMenuDivide,.no_js #navAccount:hover #navAccountLink .dropMenuDivide{background:#e0e0e0}
-.openToggler #navAccountLink .accountPulldown,.no_js #navAccount:hover #navAccountLink .accountPulldown{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-304px -73px}
+.openToggler #navAccountLink .accountPulldown,.no_js #navAccount:hover #navAccountLink .accountPulldown{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-304px -73px}
 #navAccount ul{background:#fff;border:1px solid #333;border-bottom:2px solid #2d4486;display:none;margin-right:-1px;margin-top:-1px;min-width:200px;padding:10px 0 5px;position:absolute;right:0;top:100%;z-index:1}
 #navAccount.openToggler ul,.no_js #navAccount:hover ul{display:block}
 #navAccount ul .logoutButton{display:block}
@@ -129,10 +129,10 @@ ul #navAccountInfo a:hover,ul #navAccountInfo a:focus,ul #navAccountInfo a:activ
 .fbJewelFlyout .jewelFooter .seeMoreCount{display:none;font-weight:bold;padding:2px 0 0}
 .fbJewelFlyout .jewelUnread .seeMoreCount{display:block}
 .fbJewelFlyout .jewelFooter a:hover .seeMoreCount,.fbJewelFlyout .jewelFooter a:active .seeMoreCount,.fbJewelFlyout .jewelFooter a:focus .seeMoreCount{color:#e7e7e7}
-#fbMessagesJewel a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-114px -269px}
-#fbMessagesJewel a.jewelButton:active,#fbMessagesJewel a.jewelButton:focus,#fbMessagesJewel a.jewelButton:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-271px -17px}
-#fbMessagesJewel.hasNew a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-267px -117px}
-#fbMessagesJewel.openToggler a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png) !important;background-repeat:no-repeat !important;background-position:-214px -269px !important}
+#fbMessagesJewel a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-164px -269px}
+#fbMessagesJewel a.jewelButton:active,#fbMessagesJewel a.jewelButton:focus,#fbMessagesJewel a.jewelButton:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-89px -269px}
+#fbMessagesJewel.hasNew a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-114px -269px}
+#fbMessagesJewel.openToggler a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png) !important;background-repeat:no-repeat !important;background-position:-139px -269px !important}
 #fbMessagesFlyout{left:25px}
 #fbMessagesFlyout li a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #fbMessagesFlyout .content{display:block;width:auto}
@@ -142,20 +142,20 @@ ul #navAccountInfo a:hover,ul #navAccountInfo a:focus,ul #navAccountInfo a:activ
 #fbMessagesFlyout .time{color:#9d9d9d;font-size: 9px}
 #fbMessagesFlyout a:hover .author,#fbMessagesFlyout a:hover .preview,#fbMessagesFlyout a:hover .subject,#fbMessagesFlyout a:hover .time{color:#fff}
 .noMessages #fbNotificationsJewel{margin-left:25px}
-#fbNotificationsJewel a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-267px -152px}
-#fbNotificationsJewel a.jewelButton:active,#fbNotificationsJewel a.jewelButton:focus,#fbNotificationsJewel a.jewelButton:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-139px -269px}
-#fbNotificationsJewel.hasNew a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-271px -52px}
-#fbNotificationsJewel.openToggler a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png) !important;background-repeat:no-repeat !important;background-position:-239px -269px !important}
+#fbNotificationsJewel a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-267px -117px}
+#fbNotificationsJewel a.jewelButton:active,#fbNotificationsJewel a.jewelButton:focus,#fbNotificationsJewel a.jewelButton:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-189px -269px}
+#fbNotificationsJewel.hasNew a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-267px -187px}
+#fbNotificationsJewel.openToggler a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png) !important;background-repeat:no-repeat !important;background-position:-267px -152px !important}
 #fbNotificationsFlyout{left:50px}
 #fbNotificationsFlyout a:hover .blueName{color:#fff}
 #fbNotificationsFlyout .blueName{color:#3b5998;font-weight:bold}
 #fbNotificationsFlyout .staticAppIcon{background-position:right;height:16px;width:16px}
 #fbNotificationsFlyout .selected .staticAppIcon{background-position:left}
 #fbNotificationsFlyout .info{max-width:259px;word-wrap:break-word}
-#fbRequestsJewel a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-164px -269px}
-#fbRequestsJewel a.jewelButton:active,#fbRequestsJewel a.jewelButton:focus,#fbRequestsJewel a.jewelButton:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-267px -187px}
-#fbRequestsJewel.hasNew a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-89px -269px}
-#fbRequestsJewel.openToggler a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png) !important;background-repeat:no-repeat !important;background-position:-189px -269px !important}
+#fbRequestsJewel a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-239px -269px}
+#fbRequestsJewel a.jewelButton:active,#fbRequestsJewel a.jewelButton:focus,#fbRequestsJewel a.jewelButton:hover{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-271px -52px}
+#fbRequestsJewel.hasNew a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-271px -17px}
+#fbRequestsJewel.openToggler a.jewelButton{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png) !important;background-repeat:no-repeat !important;background-position:-214px -269px !important}
 #fbRequestsFlyout ul.jewelItemList{padding-top:4px;padding-bottom:0}
 #fbRequestsFlyout li{padding:4px 8px}
 #fbRequestsFlyout .jewelHighlight li{padding:0}
@@ -180,8 +180,8 @@ ul #navAccountInfo a:hover,ul #navAccountInfo a:focus,ul #navAccountInfo a:activ
 .contextual_dialog .dialog_buttons_msg{float:right}
 .uiSearchInput{background:#fff;border:1px solid #899bc1;border-top-color:#6484b4;display:inline-block}
 .uiSearchInput span{border:0;border-top:1px solid #ededed;display:inline-block;padding:1px 0 2px;position:relative}
-.uiSearchInput input{border:0;border-right:1px solid #e5e5e5;margin:0 22px 0 5px;outline:none;padding:1px 5px 2px 0;width:190px}
-.uiSearchInput button{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/Au6ko5gyOOb.png);background-repeat:no-repeat;background-position:-262px -235px;background-color:#fff;border:0;cursor:pointer;display:block;height:19px;padding:0;position:absolute;right:0;top:0;width:22px}
+.uiSearchInput input{border:0;margin:0 22px 0 5px;outline:none;padding:1px 5px 2px 0;width:190px}
+.uiSearchInput button{background-image:url(http://static.ak.fbcdn.net/rsrc.php/v1/y6/r/1Ifz-ufn5r2.png);background-repeat:no-repeat;background-position:-262px -235px;background-color:#fff;border:0;cursor:pointer;display:block;height:19px;padding:0;position:absolute;right:0;top:0;width:22px}
 .objectListItem{padding-bottom:8px;padding-top:8px}
 .passive .objectListItem{color:#808080}
 .objectListItem .auxiliary{text-align:right}

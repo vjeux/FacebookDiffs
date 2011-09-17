@@ -1,6 +1,9 @@
 .async_throbber .async_saving{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat right;padding-right:20px}
 .async_throbber_left .async_saving{background:url(http://static.ak.fbcdn.net/rsrc.php/v1/yb/r/GsNJNwuI-UM.gif) no-repeat left;padding-left:20px}
-#blueBar{background-color:#3b5998;left:0;min-width:981px;width:100%}
+#blueBarHolder{height:41px}
+#blueBarHolder.slim{height:38px}
+#blueBar{background-color:#3b5998;min-width:981px;width:100%;z-index:3}
+#blueBar.fixed_elem{left:0;top:0}
 #blueBar #pageHead{margin:0 auto;width:981px}
 #globalContainer{margin:0 auto;position:relative}
 .fbx #globalContainer{width:981px}

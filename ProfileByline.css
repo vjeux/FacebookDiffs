@@ -398,7 +398,8 @@ div.uiAttachmentTitle{color:#333}
 .uiStream .uiStreamPrivacy .uiTooltipWrap,.uiStream .uiStreamPrivacy:active .uiTooltipWrap,.uiStream .uiStreamPrivacy:focus .uiTooltipWrap,.uiStream .uiStreamPrivacy:hover .uiTooltipWrap{left:-4px}
 .uiStreamPrivacyContainer{color:#999}
 .uiStreamCollapsed{border-top:1px solid #eee}
-.uiStreamSubstories li.showAll{line-height:16px;padding:10px 0 0}
+.uiStreamSubstories li.showAll{line-height:15px;padding:8px 0 0}
+.uiStreamSubstories li.showAll a{color:#6d84b4}
 .uiStreamSubstories .unseenItem{border-left:2px solid #a8b2ce;margin-left:-4px;padding-left:2px}
 .uiStreamSubstories .uiUfi{width:358px}
 .uiStream .uiStreamSeparator{background-color:#e9e9e9;border:0;height:7px;margin:6px 0;padding:0;text-align:center}
