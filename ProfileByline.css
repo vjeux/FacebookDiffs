@@ -372,7 +372,7 @@ div.experienceAttachment .img{margin-top:1px}
 .Locale_ja_JP .uiStream .uiStreamMessage{font-size: 12px}
 .uiStreamMessage,.uiAttachmentTitle,.uiAttachmentDesc{word-wrap:break-word}
 .uiStreamMessage .actorDescription{padding-bottom:3px}
-.uiStream .fbStreamPrivacy .lock{bottom:-2px;margin-bottom:-5px;position:relative;vertical-align:top}
+.fbStreamPrivacy .lock{bottom:-2px;margin-bottom:-5px;position:relative;vertical-align:top}
 div.uiAttachmentTitle{color:#333}
 .uiStreamStory{padding-right:35px}
 .uiStream .uiStreamHide{float:right;margin:-2px -35px 0 0}
@@ -395,7 +395,7 @@ div.uiAttachmentTitle{color:#333}
 .uiStreamAttachments .truncatedMediaItem{display:none}
 .uiStreamAttachments .text_exposed .truncatedMediaItem{display:block}
 .uiStreamAttachments .truncatedMediaInfo{display:table;zoom:1}
-.uiStream .uiStreamPrivacy .uiTooltipWrap,.uiStream .uiStreamPrivacy:active .uiTooltipWrap,.uiStream .uiStreamPrivacy:focus .uiTooltipWrap,.uiStream .uiStreamPrivacy:hover .uiTooltipWrap{left:-4px}
+.uiStreamFooter .uiStreamPrivacy .uiTooltipWrap,.uiStreamFooter .uiStreamPrivacy:active .uiTooltipWrap,.uiStreamFooter .uiStreamPrivacy:focus .uiTooltipWrap,.uiStreamFooter .uiStreamPrivacy:hover .uiTooltipWrap{left:-4px}
 .uiStreamPrivacyContainer{color:#999}
 .uiStreamCollapsed{border-top:1px solid #eee}
 .uiStreamSubstories li.showAll{line-height:15px;padding:8px 0 0}
