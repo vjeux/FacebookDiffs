@@ -62,7 +62,7 @@ copy_properties(PhotoTheaterLog, {
                 last: this.last,
                 close: a ? a : this.UNKNOWN
             };
-            (new AsyncRequest).setURI("/ajax/photos/theater/session_logging.php").setAllowCrossPageTransition(true).setOption("asynchronous", a != PhotoSnowboxLog.UNLOAD).setOption("suppressCacheInvalidation", true).setOption("suppressErrorHandlerWarning", true).setData(b).send();
+            (new AsyncRequest).setURI("/ajax/photos/theater/session_logging.php").setAllowCrossPageTransition(true).setOption("asynchronous", a != PhotoSnowboxLog.UNLOAD).setOption("suppressErrorHandlerWarning", true).setData(b).send();
             this.views = 0;
             this.fbidList = [];
             this.first = false;
@@ -228,7 +228,9 @@ var PhotoTheater = {
         }).bind(this).defer();
         CSS.addClass(document.documentElement, "theaterMode");
         CSS.show(this.root);
-        Arbiter.inform("new_layer");
+        Arbiter.inform("layer_shown", {
+            type: "PhotoTheater"
+        });
         Arbiter.inform(PhotoTheater.OPEN);
         (function() {
             this.adjustForResize();
@@ -312,6 +314,9 @@ var PhotoTheater = {
             this.closingAction = null;
             DOM.empty(DOM.find(this.root, "div.fbPhotoTheaterEgo"));
             PageTransitions.registerHandler(this.openHandler.bind(this));
+            Arbiter.inform("layer_hidden", {
+                type: "PhotoTheater"
+            });
             Arbiter.inform(PhotoTheater.CLOSE, a);
             this.root.setAttribute("aria-busy", "true");
         }

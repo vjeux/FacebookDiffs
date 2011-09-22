@@ -1,5 +1,5 @@
 if (window.CavalryLogger) {
-    CavalryLogger.start_js([ "cXxlk" ]);
+    CavalryLogger.start_js([ "nO1QQ" ]);
 }
 
 function object(b) {
@@ -270,7 +270,7 @@ function getCookie(d) {
 
 function HTML(a) {
     if (a && a.__html) a = a.__html;
-    if (this === window) {
+    if (!(this instanceof HTML)) {
         if (a instanceof HTML) return a;
         return new HTML(a);
     }
@@ -822,6 +822,9 @@ copy_properties(URI.prototype, {
     getPath: function() {
         return this.path.replace(/^\/+/, "/");
     },
+    isEmpty: function() {
+        return !(this.path || this.protocol || this.domain || this.port || this.query_s || this.fragment);
+    },
     toString: function() {
         var a = "";
         this.protocol && (a += this.protocol + "://");
@@ -1364,10 +1367,10 @@ function $E(a) {
         if (!DataStore.get(this, b)) throw new Error("Bad listenHandler context.");
         var o = DataStore.get(this, b)[n];
         if (!o) throw new Error("No registered handlers for `" + n + "'.");
-        window.ArbiterMonitor && ArbiterMonitor.pause();
         if (n == "click") {
             var i = Parent.byTag(event.getTarget(), "a");
-            user_action(i, "click", event);
+            var p = i && i.ua || user_action(i, "click", event);
+            if (window.ArbiterMonitor) ArbiterMonitor.initUA(p, [ i ]);
         }
         var k = Event.getPriorities();
         for (var j = 0; j < k.length; j++) {
@@ -1378,13 +1381,11 @@ function $E(a) {
                     if (!g[h]) continue;
                     var m = g[h].fire(this, event);
                     if (m === false) {
-                        window.ArbiterMonitor && ArbiterMonitor.resume();
                         return event.kill();
                     } else if (event.cancelBubble) event.stop();
                 }
             }
         }
-        window.ArbiterMonitor && ArbiterMonitor.resume();
         return event.returnValue;
     };
 })();
@@ -2004,7 +2005,7 @@ animation._updateEndingTimer = function() {
         delete animation.timeout;
     }
     var c = (new Date).getTime();
-    if (d > c) animation.timeout = setTimeout(animation._animate, d - c, false);
+    if (d > c) animation.timeout = setTimeout(animation._animate.shield(), d - c, false);
 };
 
 animation._animate = function(d, c) {
@@ -2559,7 +2560,6 @@ copy_properties(Dialog.prototype, {
     _cross_transition: false,
     _fixed: false,
     show: function(a) {
-        Arbiter.inform("DialogShown");
         this._showing = true;
         if (a) {
             if (this._fade_enabled) CSS.setStyle(this._obj, "opacity", 1);
@@ -2576,7 +2576,6 @@ copy_properties(Dialog.prototype, {
     },
     hide: function(a) {
         if (!this._showing) return this;
-        Arbiter.inform("DialogHidden");
         this._showing = false;
         if (this._autohide_timeout) {
             clearTimeout(this._autohide_timeout);
@@ -2971,7 +2970,9 @@ copy_properties(Dialog.prototype, {
         } else this.resetDialogPosition();
         clearInterval(this.active_hiding);
         this.active_hiding = setInterval(this._activeResize.bind(this), 500);
-        Arbiter.inform("new_layer");
+        Arbiter.inform("layer_shown", {
+            type: "Dialog"
+        });
         var c = Dialog._stack;
         if (c.length) {
             var a = c[c.length - 1];
@@ -3065,6 +3066,9 @@ copy_properties(Dialog.prototype, {
             a.splice(a.indexOf(this._bottom), 1);
             Dialog._updateMaxBottom();
         }
+        Arbiter.inform("layer_hidden", {
+            type: "Dialog"
+        });
         if (d) return;
         this.destroy();
     },
@@ -3160,8 +3164,6 @@ function AsyncRequest(uri) {
                     } catch (exception) {}
                 }
                 asyncResponse.is_last && this.finallyHandler(asyncResponse);
-                var invalidate_cache = asyncResponse.invalidate_cache;
-                if (!this.getOption("suppressCacheInvalidation") && invalidate_cache && invalidate_cache.length) Arbiter.inform(Arbiter.PAGECACHE_INVALIDATE, invalidate_cache);
             }
             if (asyncResponse.cacheObservation && typeof TabConsoleCacheobserver != "undefined" && TabConsoleCacheobserver.instance) TabConsoleCacheobserver.getInstance().addAsyncObservation(asyncResponse.cacheObservation);
         } catch (exception) {}
@@ -3434,7 +3436,6 @@ function AsyncRequest(uri) {
         remainingRetries: 0,
         option: {
             asynchronous: true,
-            suppressCacheInvalidation: false,
             suppressErrorHandlerWarning: false,
             suppressEvaluation: false,
             suppressErrorAlerts: false,
@@ -3467,26 +3468,6 @@ copy_properties(AsyncRequest, {
             send_error_signal("js_timeout_and_exception", "00002:WrongSessionID:error:" + b + ":" + d);
         }
     },
-    _hasBundledRequest: function() {
-        return AsyncRequest._allBundledRequests.length > 0;
-    },
-    stashBundledRequest: function() {
-        var a = AsyncRequest._allBundledRequests;
-        AsyncRequest._allBundledRequests = [];
-        return a;
-    },
-    setBundledRequestProperties: function(b) {
-        var c = null;
-        if (b.stashedRequests) AsyncRequest._allBundledRequests = AsyncRequest._allBundledRequests.concat(b.stashedRequests);
-        if (!AsyncRequest._hasBundledRequest()) {
-            var a = b.callback;
-            a && a();
-        } else {
-            copy_properties(AsyncRequest._bundledRequestProperties, b);
-            if (b.start_immediately) c = AsyncRequest._sendBundledRequests();
-        }
-        return c;
-    },
     _bundleRequest: function(b) {
         if (b.getOption("jsonp") || b.getOption("useIframeTransport")) {
             b.setOption("bundle", false);
@@ -3510,68 +3491,56 @@ copy_properties(AsyncRequest, {
         AsyncRequest._bundleTimer = null;
         var a = AsyncRequest._allBundledRequests;
         AsyncRequest._allBundledRequests = [];
-        var e = {};
-        copy_properties(e, AsyncRequest._bundledRequestProperties);
-        AsyncRequest._bundledRequestProperties = {};
-        if (is_empty(e) && a.length == 1) {
-            var g = a[0][1];
-            g.setOption("bundle", false).send();
-            return g;
+        if (a.length == 1) {
+            var e = a[0][1];
+            e.setOption("bundle", false).send();
+            return e;
         }
-        var d = function() {
-            e.callback && e.callback();
-        };
-        if (a.length === 0) {
-            d();
-            return null;
-        }
+        if (a.length === 0) return null;
         var b = [];
         for (var c = 0; c < a.length; c++) b.push([ a[c][0], URI.implodeQuery(a[c][1].data) ]);
-        var f = {
+        var d = {
             data: b
         };
-        if (e.extra_data) copy_properties(f, e.extra_data);
-        var g = new AsyncRequest;
-        g.setURI("/ajax/proxy.php").setData(f).setMethod("POST").setInitialHandler(e.onInitialResponse || bagof(true)).setAllowCrossPageTransition(true).setHandler(function(l) {
-            var k = l.getPayload();
-            var n = k.responses;
-            if (n.length != a.length) {
+        var e = new AsyncRequest;
+        e.setURI("/ajax/proxy.php").setData(d).setMethod("POST").setInitialHandler(bagof(true)).setAllowCrossPageTransition(true).setHandler(function(j) {
+            var i = j.getPayload();
+            var l = i.responses;
+            if (l.length != a.length) {
                 return;
-            } else for (var i = 0; i < a.length; i++) {
-                var j = a[i][0];
-                var m = a[i][1];
-                m.id = this.id;
-                if (n[i][0] != j) {
-                    m.invokeResponseHandler({
-                        transportError: "Wrong response order in bundled request to " + j
+            } else for (var g = 0; g < a.length; g++) {
+                var h = a[g][0];
+                var k = a[g][1];
+                k.id = this.id;
+                if (l[g][0] != h) {
+                    k.invokeResponseHandler({
+                        transportError: "Wrong response order in bundled request to " + h
                     });
                     continue;
                 }
-                var h = m.interpretResponse(n[i][1]);
-                m.invokeResponseHandler(h);
+                var f = k.interpretResponse(l[g][1]);
+                k.invokeResponseHandler(f);
             }
-        }).setTransportErrorHandler(function(m) {
-            var k = [];
-            var i = {
-                transportError: m.errorDescription
+        }).setTransportErrorHandler(function(k) {
+            var i = [];
+            var g = {
+                transportError: k.errorDescription
             };
-            for (var h = 0; h < a.length; h++) {
-                var j = a[h][0];
-                var l = a[h][1];
-                k.push(j);
-                l.id = this.id;
-                l.invokeResponseHandler(i);
+            for (var f = 0; f < a.length; f++) {
+                var h = a[f][0];
+                var j = a[f][1];
+                i.push(h);
+                j.id = this.id;
+                j.invokeResponseHandler(g);
             }
-        }).setFinallyHandler(function(h) {
-            d();
         }).send();
-        return g;
+        return e;
     },
     bootstrap: function(c, b, d) {
         var e = "GET";
         var f = true;
         var a = {};
-        if (d || b && b.rel == "async-post") {
+        if (d || b && (b.rel == "async-post" || b.getAttribute && b.getAttribute("forcemethod") == "post")) {
             e = "POST";
             f = false;
             if (c) {
@@ -3594,10 +3563,8 @@ copy_properties(AsyncRequest, {
     },
     _JSONPReceivers: {},
     _allBundledRequests: [],
-    _bundledRequestProperties: {},
     _bundleTimer: null,
     suppressOnloadToken: {},
-    REPLAYABLE_AJAX: "ajax/replayable",
     _last_id: 2,
     _id_threshold: 2,
     _inflight: [],
@@ -3647,13 +3614,16 @@ copy_properties(AsyncRequest.prototype, {
         if (a) this.context["_log_" + b] = c;
         return this;
     },
+    getUserActionID: function() {
+        return (window.EagleEye && EagleEye.getSessionID() || "-") + "/" + (window.ArbiterMonitor && ArbiterMonitor.getUE() || "-");
+    },
     setURI: function(a) {
         var b = URI(a);
         if (this.getOption("useIframeTransport") && !b.isFacebookURI()) return this;
         if (!this.getOption("jsonp") && !this.getOption("useIframeTransport") && !b.isSameOrigin()) return this;
-        if (!a || b.toString() === "") {
+        if (!a || b.isEmpty()) {
             if (window.send_error_signal && window.get_error_stack) {
-                send_error_signal("async_error", "1013:-:0:-:" + window.location.href);
+                send_error_signal("async_error", "1013:-:0:-:" + window.location.href + ":" + this.getUserActionID());
                 send_error_signal("async_xport_stack", "1013:" + window.location.href + "::" + get_error_stack());
             }
             return this;
@@ -3851,7 +3821,6 @@ copy_properties(AsyncRequest.prototype, {
             this.data.lsd = getCookie("lsd");
         }
         this._replayable = !this.getReadOnly() && this._replayable !== false || this._replayable;
-        if (this._replayable) Arbiter.inform(AsyncRequest.REPLAYABLE_AJAX, this);
         if (!is_empty(this.context) && this.getOption("tfbEndpoint")) {
             copy_properties(this.data, this.context);
             this.data.ajax_log = 1;
@@ -4022,9 +3991,12 @@ copy_properties(AsyncResponse.prototype, {
     },
     logError: function(a, c) {
         if (window.send_error_signal) {
-            c = c === undefined ? "" : ":" + c;
+            var b = [ this.error, env_get("vip") || "-" ];
+            if (c !== undefined) b.push(c);
             var d = this.request.getURI();
-            var b = this.error + ":" + (env_get("vip") || "-") + c + ":" + (d || "-");
+            b.push(d || "-");
+            b.push(this.request.getUserActionID());
+            b = b.join(":");
             if (d && d.indexOf("scribe_endpoint.php") != -1) a = "async_error_double";
             send_error_signal(a, b);
         }
@@ -4176,5 +4148,3 @@ onloadRegister(function() {
         for (var c = 0; c < a.length; c++) if (a[c].getAttribute("placeholder") && Input.isEmpty(a[c])) Input.setValue(a[c], "");
     });
 });
-
-window.__UIControllerRegistry = window.__UIControllerRegistry || {};

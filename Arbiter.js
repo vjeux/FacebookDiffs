@@ -147,8 +147,6 @@ copy_properties(Arbiter, {
     BOOTLOAD: "bootload",
     FUNCTION_EXTENSION: "function_ext",
     CONTEXT_CHANGE: "ui/context-change",
-    PAGECACHE_INVALIDATE: "pagecache/invalidate",
-    NEW_NOTIFICATIONS: "chat/new_notifications",
     LIST_EDITOR_LISTS_CHANGED: "listeditor/friend_lists_changed",
     CAROUSEL_ROTATE: "carousel/rotate",
     subscribe: function(k, b, i) {
@@ -297,25 +295,6 @@ copy_properties(Arbiter, {
     }
 });
 
-Function.prototype.deferUntil = function(a, h, b, i) {
-    var f = a();
-    if (f) {
-        this(f);
-        return null;
-    }
-    var e = this, d = null, g = +(new Date);
-    var c = function() {
-        f = a();
-        if (!f) if (h && new Date - g >= h) {
-            i && i();
-        } else return;
-        d && clearInterval(d);
-        e(f);
-    };
-    d = setInterval(c, 20, b);
-    return d;
-};
-
 var Bootloader = window.Bootloader || {
     configurePage: function(a) {
         var g = {};
@@ -432,49 +411,45 @@ var Bootloader = window.Bootloader || {
     _activeCSSPolls: {},
     _expireTime: null,
     _runCSSPolls: function() {
-        var e;
-        var c = [];
-        var f = +(new Date);
-        if (f >= Bootloader._expireTime) {
+        var f;
+        var b = [];
+        var g = (new Date).getTime();
+        if (g >= Bootloader._expireTime) {
             if (window.send_error_signal) if (Math.random() < .01) send_error_signal("js_timeout_and_exception", "00001:error:CSS timeout.");
-            for (e in Bootloader._activeCSSPolls) c.push(e);
-            Bootloader.done(c, true);
+            for (f in Bootloader._activeCSSPolls) b.push(f);
             Bootloader._activeCSSPolls = {};
         } else {
             var d = Bootloader._CSS_EXPECTED_HEIGHT;
+            var c = [];
             var a;
-            for (e in Bootloader._activeCSSPolls) {
-                var b = Bootloader._activeCSSPolls[e];
-                var g = b.offsetHeight == d || b.currentStyle && b.currentStyle.height == d + "px" || window.getComputedStyle && (a = document.defaultView.getComputedStyle(b, null)) && a.getPropertyValue("height") == d + "px";
-                if (g) {
-                    c.push(e);
-                    b.parentNode.removeChild(b);
-                    delete Bootloader._activeCSSPolls[e];
+            for (f in Bootloader._activeCSSPolls) {
+                var i = Bootloader._activeCSSPolls[f];
+                var h = i.offsetHeight == d || i.currentStyle && i.currentStyle.height == d + "px" || window.getComputedStyle && (a = document.defaultView.getComputedStyle(i, null)) && a.getPropertyValue("height") == d + "px";
+                if (h) {
+                    b.push(f);
+                    c.push(i);
+                    delete Bootloader._activeCSSPolls[f];
                 }
             }
             if (!is_empty(c)) {
-                Bootloader.done(c, true);
-                Bootloader._expireTime = f + Bootloader._CSS_POLL_EXPIRATION;
+                for (var e = 0; e < c.length; e++) c[e].parentNode.removeChild(c[e]);
+                Bootloader._expireTime = g + Bootloader._CSS_POLL_EXPIRATION;
             }
         }
+        if (!is_empty(b)) Bootloader.done(b, true);
         return is_empty(Bootloader._activeCSSPolls);
     },
     _startCSSPoll: function(c) {
-        var b = "bootloader_" + c.replace(/[^a-z0-9]/ig, "_");
-        var a = bagofholding;
-        (function() {
-            var d = document.createElement("div");
-            d.id = b;
-            document.body.appendChild(d);
-            Bootloader._expireTime = +(new Date) + Bootloader._CSS_POLL_EXPIRATION;
-            var f = is_empty(Bootloader._activeCSSPolls);
-            Bootloader._activeCSSPolls[c] = d;
-            if (f) var e = setInterval(function() {
-                if (Bootloader._runCSSPolls()) e && clearInterval(e);
-            }, 20, false);
-        }).deferUntil(function() {
-            return document.body;
-        }, 5e3, false, a.curry("Still no DOM"));
+        var a = "bootloader_" + c.replace(/[^a-z0-9]/ig, "_");
+        var d = document.createElement("link");
+        d.id = a;
+        Bootloader.getHardpoint().appendChild(d);
+        Bootloader._expireTime = new Date + Bootloader._CSS_POLL_EXPIRATION;
+        var e = is_empty(Bootloader._activeCSSPolls);
+        Bootloader._activeCSSPolls[c] = d;
+        if (e) var b = setInterval(function _poll() {
+            if (Bootloader._runCSSPolls()) b && clearInterval(b);
+        }, 20, false);
     },
     done: function(e, b) {
         Bootloader.requested(e);
@@ -521,11 +496,8 @@ var Bootloader = window.Bootloader || {
     },
     getHardpoint: function() {
         if (!Bootloader._hardpoint) {
-            var b, a = document.getElementsByTagName("head");
-            if (a.length) {
-                b = a[0];
-            } else b = document.body;
-            Bootloader._hardpoint = b;
+            var a = document.getElementsByTagName("head");
+            Bootloader._hardpoint = a.length && a[0] || document.body;
         }
         return Bootloader._hardpoint;
     },
@@ -709,6 +681,9 @@ var Bootloader = window.Bootloader || {
             });
             return r;
         },
+        getSessionID: function() {
+            return o;
+        },
         loaded: function() {
             p = true;
         }
@@ -871,24 +846,99 @@ function bagof(a) {
     };
 }
 
-(function() {
-    UserAction = function() {};
-    copy_properties(UserAction.prototype, {
-        add_event: bagofholding,
-        add_data: bagofholding,
-        set_ua_id: bagofholding,
-        set_namespace: bagofholding
-    });
-})();
-
 function set_ue_cookie(a) {
     if (!(window.Env && Env.no_cookies)) document.cookie = "act=" + encodeURIComponent(a) + "; path=/; domain=" + window.location.hostname.replace(/^.*(\.facebook\..*)$/i, "$1");
 }
 
+(function() {
+    UserNoOp = function() {};
+    var a = function() {
+        return this;
+    };
+    copy_properties(UserNoOp.prototype, {
+        add_event: a,
+        add_data: a,
+        set_ua_id: a,
+        set_namespace: a
+    });
+})();
+
+function UserAction(d, c, a) {
+    var b = d + "/" + c;
+    copy_properties(this, {
+        ue: b,
+        _ua_id: null,
+        _ts: d,
+        _ns: null,
+        _start_ts: d,
+        _prev_event: "s",
+        _ue_ts: d,
+        _ue_count: c,
+        _context: a,
+        _version: 1
+    });
+}
+
+UserAction.enable = function(a) {
+    UserAction.enable[a] = true;
+};
+
+copy_properties(UserAction.prototype, {
+    set_ua_id: function(a) {
+        this._ua_id = a;
+        return this;
+    },
+    set_namespace: function(a) {
+        this._ns = a;
+        return this;
+    },
+    add_event: function(c) {
+        if (!UserAction.enable.events) return this;
+        var d = +(new Date), a = d - this._ts;
+        var b = [ this._version, this.ue, this._ns, this._ua_id, this._prev_event, c, a ];
+        window.EagleEye && EagleEye.log("evt", b);
+        this._ts = d;
+        this._prev_event = c;
+        return this;
+    },
+    add_data: function(a) {
+        if (!UserAction.enable.data) return this;
+        return this;
+    }
+});
+
 var user_action = function() {
-    var l = !window.ArbiterMonitor ? "r" : "a", n = 0, m, e, f, o = 0, k, i, b, c, h = [ 0, 0, 0, 0 ], d = function() {
-        if (!!i) {
-            var q = {
+    var d = 0, c = 0;
+    var b = null, a = null;
+    return function(h, e, event, g, f) {
+        var k = +(new Date), j = k + "/" + d;
+        f = f || {};
+        if (!h && event) h = event.getTarget();
+        b = h;
+        a = event;
+        var i = new UserAction(k, d, e);
+        Arbiter.inform("UserAction/new", {
+            ua: i,
+            node: h,
+            mode: g,
+            event: event,
+            extra_data: f
+        });
+        c = k;
+        d++;
+        return i;
+    };
+}();
+
+var report_data = function(a, b) {
+    user_action(null, a, null, "FORCE", b);
+};
+
+(function() {
+    ClickRef = {};
+    ClickRef.get_intern_ref = function(c) {
+        if (!!c) {
+            var b = {
                 profile_minifeed: 1,
                 info_tab: 1,
                 gb_content_and_toolbar: 1,
@@ -900,77 +950,82 @@ var user_action = function() {
                 BeeperBox: 1,
                 navSearch: 1
             };
-            for (var p = i; p && p != document.body; p = p.parentNode) {
-                if (!p.id || typeof p.id !== "string") continue;
-                if (p.id.substr(0, 8) == "pagelet_") return p.id.substr(8);
-                if (p.id.substr(0, 8) == "box_app_") return p.id;
-                if (q[p.id]) return p.id;
+            for (var a = c; a && a != document.body; a = a.parentNode) {
+                if (!a.id || typeof a.id !== "string") continue;
+                if (a.id.substr(0, 8) == "pagelet_") return a.id.substr(8);
+                if (a.id.substr(0, 8) == "box_app_") return a.id;
+                if (b[a.id]) return a.id;
             }
         }
         return "-";
-    }, g = function(q) {
+    };
+    ClickRef.get_href = function(b) {
+        var a = b.getAttribute && (b.getAttribute("ajaxify") || b.getAttribute("data-endpoint")) || b.action || b.href || b.name;
+        return a;
+    };
+    ClickRef.mouse_click_info = function(b) {
         if (!ge("content")) return [ 0, 0, 0, 0 ];
-        var p = $("content");
-        var r = window.Vector2 ? Vector2.getEventPosition(q) : {
+        var a = $("content");
+        var c = window.Vector2 ? Vector2.getEventPosition(b) : {
             x: 0,
             y: 0
         };
-        return [ r.x, r.y, p.offsetLeft, p.clientWidth ];
-    }, j = function() {
-        n++;
-        var r = o + "/" + n;
-        set_ue_cookie(r);
-        var q = {};
+        return [ c.x, c.y, a.offsetLeft, a.clientWidth ];
+    };
+    ClickRef.should_report = function(b, a) {
+        if (a == "FORCE") return true;
+        if (a == "INDIRECT") return false;
+        return b && ClickRef.get_href(b);
+    };
+    ClickRef.collect_data = function(l, h, event, d) {
+        var j = !window.ArbiterMonitor ? "r" : "a", g = [ 0, 0, 0, 0 ], k, e, f;
+        if (!!event) {
+            k = event.type;
+            if (k == "click" && ge("content")) g = ClickRef.mouse_click_info(event);
+            var b = 0;
+            event.ctrlKey && (b += 1);
+            event.shiftKey && (b += 2);
+            event.altKey && (b += 4);
+            event.metaKey && (b += 8);
+            if (b) k += b;
+        }
+        if (!!h) e = ClickRef.get_href(h);
+        var a = [];
+        if (window.ArbiterMonitor) {
+            f = ArbiterMonitor.getInternRef(h);
+            a = ArbiterMonitor.getActFields();
+        }
+        var c = {};
         if (window.collect_data_attribs) {
-            q = collect_data_attribs(i, [ "ft", "gt" ]);
-            copy_properties(q.ft, c.ft || {});
-            copy_properties(q.gt, c.gt || {});
+            c = collect_data_attribs(h, [ "ft", "gt" ]);
+            copy_properties(c.ft, d.ft || {});
+            copy_properties(c.gt, d.gt || {});
+            if (c.gt.ua_id) l.set_ua_id(c.gt.ua_id);
         }
-        var p = [];
-        if (l == "a") {
-            ArbiterMonitor.initUE(r, [ (q && q.gt || {}).ua_id || "", i ]);
-            f = ArbiterMonitor.getInternRef(i);
-            p = ArbiterMonitor.getActFields();
-        }
-        window.EagleEye && EagleEye.log("act", [ o, n, e || "-", b, m || "-", f || d(i), l, window.URI ? URI.getRequestURI(true, true).getUnqualifiedURI().toString() : location.pathname + location.search + location.hash, q ].concat(h).concat(p));
-        k = true;
-    }, a = function(u, q, s, t, r) {
-        if (!!s) {
-            m = s.type;
-            if (m == "click" && ge("content")) h = g(s);
-            var p = 0;
-            s.ctrlKey && (p += 1);
-            s.shiftKey && (p += 2);
-            s.altKey && (p += 4);
-            s.metaKey && (p += 8);
-            if (p) m += p;
-        }
-        if (!u && s) u = s.getTarget();
-        if (!!u) {
-            e = u.getAttribute && (u.getAttribute("ajaxify") || u.getAttribute("data-endpoint")) || u.action || u.href || u.name;
-            i = u;
-        }
-        if (!!q && !b) b = q;
-        if (!!r) c = r;
-        if (t == "FORCE" || e) j();
+        var i = [ l._ue_ts, l._ue_count, e || "-", l._context, k || "-", f || ClickRef.get_intern_ref(h), j, window.URI ? URI.getRequestURI(true, true).getUnqualifiedURI().toString() : location.pathname + location.search + location.hash, c ].concat(g).concat(a);
+        return i;
     };
-    return function(t, p, r, s, q) {
-        var u = +(new Date);
+    ClickRef.onNewUserAction = function(b, a) {
         Bootloader.loadComponents("dom-collect", function() {
-            if (u - o < 10) {
-                !k && a(t, p, r, s, q);
-                return;
+            if (ClickRef.should_report(a.node, a.mode)) {
+                var c = ClickRef.collect_data(a.ua, a.node, a.event, a.extra_data);
+                ClickRef.report(a.ua, c);
             }
-            if (s == "INDIRECT") return;
-            m = e = f = i = b = null;
-            c = {};
-            k = false;
-            o = u;
-            a(t, p, r, s, q);
         });
-        return new UserAction;
     };
-}();
+    ClickRef.report = function(c, b) {
+        var d = c.ue;
+        set_ue_cookie(d);
+        if (window.EagleEye) {
+            EagleEye.log("act", b);
+            if (window.ArbiterMonitor && window.send_error_signal) {
+                var a = EagleEye.getSessionID() + "/" + (ArbiterMonitor.getUE() || "-");
+                send_error_signal("scribeh_arbiter_monitor_actions", a);
+            }
+        }
+    };
+    window.Arbiter && Arbiter.subscribe("UserAction/new", ClickRef.onNewUserAction);
+})();
 
 ge = $ = function(a) {
     return typeof a == "string" ? document.getElementById(a) : a;
@@ -1041,50 +1096,56 @@ function trackReferrer(a, e) {
     if (window.__primer) return;
     window.__primer = true;
     var a = null;
-    document.documentElement.onclick = function(d) {
-        d = d || window.event;
-        a = d.target || d.srcElement;
-        var e = Parent.byTag(a, "A");
-        if (!e) return;
-        var b = e.getAttribute("ajaxify");
-        var f = e.href;
-        var i = b || f;
-        i && user_action(e, "a", d);
-        if (b && f && !/#$/.test(f)) {
-            var g = d.which && d.which != 1;
-            var h = d.altKey || d.ctrlKey || d.metaKey || d.shiftKey;
-            if (g || h) return;
+    var b = /async(?:-post)?|dialog(?:-pipe|-post)?|theater|toggle/;
+    document.documentElement.onclick = function(e) {
+        e = e || window.event;
+        a = e.target || e.srcElement;
+        var f = Parent.byTag(a, "A");
+        if (!f) return;
+        var c = f.getAttribute("ajaxify");
+        var g = f.href;
+        var l = c || g;
+        if (l) {
+            var k = user_action(f, "a", e);
+            if (window.ArbiterMonitor) ArbiterMonitor.initUA(k, [ f ]);
         }
-        trackReferrer(e, i);
-        var c = [ "dialog" ];
-        switch (e.rel) {
+        if (c && g && !/#$/.test(g)) {
+            var h = e.which && e.which != 1;
+            var i = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
+            if (h || i) return;
+        }
+        trackReferrer(f, l);
+        var d = [ "dialog" ];
+        var j = f.rel && f.rel.match(b);
+        j = j && j[0];
+        switch (j) {
           case "dialog-pipe":
-            c.push("ajaxpipe");
+            d.push("ajaxpipe");
           case "dialog":
           case "dialog-post":
-            Bootloader.loadComponents(c, function() {
-                Dialog.bootstrap(i, null, e.rel == "dialog", null, null, e);
+            Bootloader.loadComponents(d, function() {
+                Dialog.bootstrap(l, null, j == "dialog", null, null, f);
             });
             break;
           case "async":
           case "async-post":
             Bootloader.loadComponents("async", function() {
-                AsyncRequest.bootstrap(i, e);
+                AsyncRequest.bootstrap(l, f);
             });
             break;
           case "theater":
             if (window.Env && Env.theater_ver == "2") {
                 Bootloader.loadComponents("PhotoSnowbox", function() {
-                    PhotoSnowbox.bootstrap(i, e);
+                    PhotoSnowbox.bootstrap(l, f);
                 });
             } else Bootloader.loadComponents("PhotoTheater", function() {
-                PhotoTheater.bootstrap(i, e);
+                PhotoTheater.bootstrap(l, f);
             });
             break;
           case "toggle":
-            CSS.toggleClass(e.parentNode, "openToggler");
+            CSS.toggleClass(f.parentNode, "openToggler");
             Bootloader.loadComponents("Toggler", function() {
-                Toggler.bootstrap(e);
+                Toggler.bootstrap(f);
             });
             break;
           default:
@@ -1092,14 +1153,15 @@ function trackReferrer(a, e) {
         }
         return false;
     };
-    document.documentElement.onsubmit = function(b) {
-        b = b || window.event;
-        var c = b.target || b.srcElement;
-        if (c && c.nodeName == "FORM" && c.getAttribute("rel") == "async") {
-            user_action(c, "f", b);
-            var d = a;
+    document.documentElement.onsubmit = function(c) {
+        c = c || window.event;
+        var d = c.target || c.srcElement;
+        if (d && d.nodeName == "FORM" && d.getAttribute("rel") == "async") {
+            var f = user_action(d, "f", c);
+            if (window.ArbiterMonitor) ArbiterMonitor.initUA(f, [ d ]);
+            var e = a;
             Bootloader.loadComponents("dom-form", function() {
-                Form.bootstrap(c, d);
+                Form.bootstrap(d, e);
             });
             return false;
         }
@@ -1379,6 +1441,7 @@ function invoke_callbacks(b, d) {
         this._counts = {};
         return a.instances[d] || (a.instances[d] = this);
     };
+    JSLogger.DUMP_EVENT = "jslogger/dump";
     var a = JSLogger._ = {
         instances: {},
         backlog: [],
@@ -1414,94 +1477,116 @@ Event.__bubbleSubmit = function(a, event) {
 };
 
 (function() {
-    var t = {}, r = {}, k = 0, s = this, h = "requireWhenReady", c = "exports", b = "dependencies", f = "module", j = "waiting", d = "factory", i = undefined, a = "define", e = "global", g = "require";
-    function u(zb) {
-        var zc = t[zb], w, za;
-        if (!zc[c]) {
-            var y = zc[c] = {}, z = zc[d];
-            if (Object.prototype.toString.call(z) === "[object Function]") {
-                var v = [], x = zc[b];
-                for (za = 0; za < x.length; za++) {
-                    w = x[za];
-                    v.push(w === f ? zc : w === c ? y : u(w));
+    var y = {}, v = {}, m = 0, x = this, h = 1, k = 2, i = "special", c = "exports", b = "dependencies", f = "module", l = "waiting", d = "factory", j = undefined, a = "define", e = "global", g = "require";
+    function z(zh) {
+        var zj = y[zh], zc, zg;
+        if (zj[l] && zj[i] & k) p();
+        if (!zj[c]) {
+            var ze = zj[c] = {}, zf = zj[d];
+            if (Object.prototype.toString.call(zf) === "[object Function]") {
+                var zb = [], zd = zj[b], zi = zd.length;
+                if (zj[i] & k) zi = Math.min(zi, zf.length);
+                for (zg = 0; zg < zi; zg++) {
+                    zc = zd[zg];
+                    zb.push(zc === f ? zj : zc === c ? ze : z(zc));
                 }
-                var zd = z.apply(s, v);
-                if (zd) zc[c] = zd;
-            } else zc[c] = z;
+                var zk = zf.apply(x, zb);
+                if (zk) zj[c] = zk;
+            } else zj[c] = zf;
         }
-        return zc[c];
+        return zj[c];
     }
-    function p(x, v, w, z) {
-        if (v === i) {
-            v = [];
-            w = x;
-            x = n();
-        } else if (w === i) {
-            w = v;
-            v = x;
-            x = n();
+    function u(ze, zc, zd, zb) {
+        if (zc === j) {
+            zc = [];
+            zd = ze;
+            ze = r();
+        } else if (zd === j) {
+            zd = zc;
+            zc = ze;
+            ze = r();
         }
-        if (t[x]) return;
-        var y = {
-            id: x
+        if (y[ze]) return;
+        var zf = {
+            id: ze
         };
-        y[d] = w;
-        y[b] = v;
-        y[h] = z;
-        t[x] = y;
-        l(x);
+        zf[d] = zd;
+        zf[b] = zc;
+        zf[i] = zb;
+        y[ze] = zf;
+        n(ze);
     }
-    function q(x, v, w) {
-        p(x, v, w, true);
+    function w(zb, zc) {
+        u(zb, zc, j, h);
     }
-    function n() {
-        return "__mod__" + k++;
+    function p() {
+        var zc = {}, zb;
+        for (zb in v) if (y[zb] && !zc[zb] && y[zb][i] & k) q({}, zb, zc);
     }
-    function l(x) {
-        var y = t[x];
-        var z = 0;
-        for (var w = 0; w < y[b].length; w++) {
-            var v = y[b][w];
-            if (!t[v] || t[v][j]) {
-                r[v] || (r[v] = {});
-                r[v][x] = 1;
-                z++;
+    function q(ze, zb, zf) {
+        zf[zb] = 1;
+        var zd = v[zb], zc;
+        if (!zd) return;
+        ze[zb] = 1;
+        for (zc in zd) {
+            if (!y[zc][i] & k) continue;
+            if (ze[zc]) {
+                delete zd[zc];
+                y[zc][l]--;
+                if (!y[zc][l]) s(zc);
+            } else q(ze, zc, zf);
+        }
+        ze[zb] = 0;
+    }
+    function r() {
+        return "__mod__" + m++;
+    }
+    function n(zd) {
+        var ze = y[zd];
+        var zf = 0;
+        for (var zc = 0; zc < ze[b].length; zc++) {
+            var zb = ze[b][zc];
+            if (!y[zb] || y[zb][l]) {
+                v[zb] || (v[zb] = {});
+                v[zb][zd] = 1;
+                zf++;
             }
         }
-        y[j] = z;
-        o(x);
+        ze[l] = zf;
+        if (!zf) s(zd);
     }
-    function o(w) {
-        var x = t[w];
-        if (!x[j]) {
-            if (x[h]) u(w);
-            var y = r[w];
-            if (y) {
-                delete r[w];
-                for (var v in y) {
-                    t[v][j]--;
-                    o(v);
-                }
-            }
+    function s(zc) {
+        var zd = y[zc];
+        if (zd[i] & h) z(zc);
+        var ze = v[zc];
+        if (ze) {
+            delete v[zc];
+            for (var zb in ze) if (!--y[zb][l]) s(zb);
         }
     }
-    function m(w, v) {
-        t[w] = {
-            id: w
+    function o(zc, zb) {
+        y[zc] = {
+            id: zc
         };
-        t[w][c] = v;
+        y[zc][c] = zb;
     }
-    m(f, 0);
-    m(c, 0);
-    m(a, p);
-    m(e, s);
-    m(g, u);
-    p.amd = {};
-    s[a] = p;
-    s[g] = u;
-    s.defineAndRequire = q;
-    s.__d = function(w, v) {
-        p(w, [ e, f, g, c ], v);
+    o(f, 0);
+    o(c, 0);
+    o(a, u);
+    o(e, x);
+    o(g, z);
+    u.amd = {};
+    x[a] = u;
+    x[g] = z;
+    z.ensure = w;
+    var t = [ e, f, g, c ];
+    var za = false;
+    x.__d = function(ze, zc, zd, zb) {
+        u(ze, t.concat(zc), zd, zb || k);
+        if (y[ze][l] && !za) za = setTimeout(function() {
+            p();
+            za = false;
+        }, 9);
     };
 })();
 
@@ -1624,8 +1709,7 @@ function BigPipe(a) {
         forceFinish: false,
         _phaseDoneCallbacks: [],
         _currentPhase: 0,
-        _lastPhase: -1,
-        _cached_pagelets: {}
+        _lastPhase: -1
     });
     copy_properties(this, a);
     this._cavalry = this.lid && window.CavalryLogger ? CavalryLogger.getInstance(this.lid) : null;
@@ -1751,7 +1835,6 @@ copy_properties(BigPipe.prototype, {
     },
     processPagelet: function(b) {
         var c = b.phase;
-        if (b.page_cache) this._cached_pagelets["id_" + b.id] = b;
         if (b.the_end) this._lastPhase = b.phase;
         if (b.tti_phase !== undefined) this._ttiPhase = b.tti_phase;
         b.jscc && invoke_callbacks([ b.jscc ]);
@@ -1768,7 +1851,6 @@ copy_properties(BigPipe.prototype, {
         this.arbiter.registerCallback(this.onloadCallback, [ "pagelet_onload" ]);
         this.arbiter.registerCallback(this._downloadJsForPagelet.bind(this, b), [ a ]);
         b.is_last && this.arbiter.inform("phase_complete_" + c, true, Arbiter.BEHAVIOR_STATE);
-        b.invalidate_cache && b.invalidate_cache.length && Arbiter.inform(Arbiter.PAGECACHE_INVALIDATE, b.invalidate_cache);
     },
     _onPhaseDone: function() {
         if (this._currentPhase === this._ttiPhase && this.rrEnabled) {
@@ -1792,9 +1874,6 @@ copy_properties(BigPipe.prototype, {
     },
     _isRelevant: function() {
         return this == BigPipe._current_instance || this.isReplay || this.jsNonBlock || this.forceFinish;
-    },
-    getAllCachedPagelets: function() {
-        return this._cached_pagelets;
     }
 });
 

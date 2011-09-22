@@ -7,8 +7,7 @@ add_properties("Hovercard", {
     RESERVED_WIDTH: 297,
     RESERVED_HEIGHT: 237,
     cache: {},
-    lastEndpoint: null,
-    isShowing: false,
+    contextElem: null,
     fetchDelay: 150,
     showDelay: 700,
     loadingDelay: 1e3,
@@ -27,10 +26,10 @@ add_properties("Hovercard", {
         }, _tx("Chargement..."));
         this.stage = $N("div", {
             className: "stage"
-        }, this.loading);
+        });
         this.preload = $N("div", {
             id: "hovercardPreload"
-        });
+        }, this.loading);
         this.overlay = $N("div", {
             className: "HovercardOverlay"
         });
@@ -41,6 +40,7 @@ add_properties("Hovercard", {
         Event.listen(this.container, "mouseenter", function() {
             clearTimeout(this.hideTimer);
         }.bind(this));
+        Event.listen(window, "scroll", bind(this, "hide", true));
         var a = null;
         var b = [];
         Arbiter.subscribe("Overlay/show", function(d, e) {
@@ -63,7 +63,9 @@ add_properties("Hovercard", {
             this.abort();
             this.dirtyAll();
         }.bind(this), Arbiter.SUBSCRIBE_NEW);
-        Arbiter.subscribe("new_layer", this.abort.shield(this), Arbiter.SUBSCRIBE_NEW);
+        Arbiter.subscribe("layer_shown", function(d, e) {
+            e.type != "Hovercard" && e.type != "Overlay" && this.abort();
+        }.bind(this), Arbiter.SUBSCRIBE_NEW);
         document.body.appendChild(this.preload);
     },
     process: function(b) {
@@ -80,7 +82,7 @@ add_properties("Hovercard", {
         clearTimeout(this.showTimer);
         clearTimeout(this.hideTimer);
         var a = this.fetchDelay;
-        var c = this.isShowing ? this.hideDelay : this.showDelay;
+        var c = this.contextElem ? this.hideDelay : this.showDelay;
         if (b.getAttribute("data-hovercard-instant")) a = c = 50;
         this.fetchTimer = setTimeout(this.fetch.bind(this, b), a);
         this.showTimer = setTimeout(this.show.bind(this, b), c);
@@ -97,20 +99,24 @@ add_properties("Hovercard", {
                 node: this.loading
             };
         } else {
-            var d = this.isShowing ? this.hideDelay : this.showDelay;
+            var d = this.contextElem ? this.hideDelay : this.showDelay;
             this.loadingTimer = setTimeout(this.show.bind(this, c, true), this.loadingDelay - d);
         }
         a && this.update(a);
     },
     hide: function(a) {
+        if (!this.contextElem) return;
         if (a) {
+            Arbiter.inform("layer_hidden", {
+                type: "Hovercard"
+            });
+            Arbiter.inform("Hovercard/hide", {
+                node: this.contextElem
+            });
             if (this.stage && this.stage.firstChild) this.preload.appendChild(this.stage.firstChild);
             var b = this.container && this.container.parentNode;
             b && b.removeChild(this.container);
-            this.isShowing = false;
-            Arbiter.inform("Hovercard/hide", {
-                hovercard: this
-            });
+            this.contextElem = null;
         } else this.hideTimer = setTimeout(this.hide.bind(this, true), this.hideDelay);
     },
     abort: function() {
@@ -119,30 +125,41 @@ add_properties("Hovercard", {
         clearTimeout(this.loadingTimer);
     },
     update: function(a) {
-        if (this.stage.firstChild) this.preload.appendChild(this.stage.firstChild);
+        var g = this.contextElem;
+        var f = this.stage.firstChild;
+        var h = f === this.loading;
+        if (f) this.preload.appendChild(f);
         var b = a.node;
-        var d = b && b.getAttribute("data-hovercard-layout");
+        var c = b && b.getAttribute("data-hovercard-layout");
         this.container.className = "hovercard";
-        d && CSS.addClass(this.container, d);
-        var e = this.active.node;
-        var c = this.getEndpoint(e);
-        if (c != this.lastEndpoint) (function() {
+        c && CSS.addClass(this.container, c);
+        var d = this.active.node;
+        var e = d != g && !h;
+        if (e) (function() {
             (new AsyncSignal("/ajax/hovercard/shown.php")).send();
-            user_action(e, "himp", null, "FORCE", {
+            report_data("himp", {
                 ft: {
                     evt: 39
                 }
             });
         }).defer();
         this.stage.appendChild(b);
-        this.position(e, e.getAttribute("data-hovercard-fixed"));
+        this.position(d, d.getAttribute("data-hovercard-fixed"));
         this.overlay.appendChild(this.container);
         document.body.appendChild(this.overlay);
-        this.lastEndpoint = c;
-        this.isShowing = true;
-        Arbiter.inform("Hovercard/show", {
-            hovercard: this
-        });
+        this.contextElem = d;
+        if (e) {
+            if (g) {
+                Arbiter.inform("Hovercard/hide", {
+                    node: g
+                });
+            } else Arbiter.inform("layer_shown", {
+                type: "Hovercard"
+            });
+            Arbiter.inform("Hovercard/show", {
+                node: d
+            });
+        }
     },
     position: function(f, e) {
         if (!this.wCheck && e) {
@@ -220,7 +237,7 @@ add_properties("Hovercard", {
     setCache: function(b, a) {
         this.build();
         this.cache[b] = a;
-        if (this.active.endpoint == b && this.isShowing) {
+        if (this.active.endpoint == b && this.contextElem) {
             this.update(a);
         } else DOM.appendContent(this.preload, a.node);
     },

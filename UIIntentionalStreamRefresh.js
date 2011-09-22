@@ -18,46 +18,43 @@ var Live = {
         });
         return c;
     },
-    handleMessage: function(d, a) {
-        var b = a.obj;
-        var c = this._processMessage.bind(this).curry(b.fbid, b.assoc, b);
-        c(false);
-        onpagecacheRegister(c.curry(true));
-    },
-    _processMessage: function(b, a, c, d) {
-        var e = this.lookupLiveNode(b, a);
+    handleMessage: function(f, b) {
+        var d = b.obj;
+        var c = d.fbid;
+        var a = d.assoc;
+        var e = this.lookupLiveNode(c, a);
         if (!e) return false;
-        e.forEach(function(k) {
-            var j = {
+        e.forEach(function(l) {
+            var k = {
                 getRelativeTo: function() {
-                    return k;
+                    return l;
                 }
             };
-            if (c.expseq) {
-                var h = DataStore.get(k, "seqnum");
-                var f = DataStore.get(k, "message_buffer");
-                if (f === undefined) {
-                    f = {};
-                    DataStore.set(k, "message_buffer", f);
+            if (d.expseq) {
+                var i = DataStore.get(l, "seqnum");
+                var g = DataStore.get(l, "message_buffer");
+                if (g === undefined) {
+                    g = {};
+                    DataStore.set(l, "message_buffer", g);
                 }
-                var g = {
-                    obj: c
+                var h = {
+                    obj: d
                 };
-                f[c.expseq] = g;
-                if (c.expseq != h) {
-                    Live.log("mismatch", c.fbid, c.expseq, h);
+                g[d.expseq] = h;
+                if (d.expseq != i) {
+                    Live.log("mismatch", d.fbid, d.expseq, i);
                     return false;
                 }
                 while (true) {
-                    h = DataStore.get(k, "seqnum");
-                    var i = f[h];
-                    if (i) {
-                        Live._applyUpdates(i.obj.updates, j);
-                        Live.log("seqmatch", c.fbid, "exp", c.expseq, "cur", h);
-                        delete f[h];
+                    i = DataStore.get(l, "seqnum");
+                    var j = g[i];
+                    if (j) {
+                        Live._applyUpdates(j.obj.updates, k);
+                        Live.log("seqmatch", d.fbid, "exp", d.expseq, "cur", i);
+                        delete g[i];
                     } else break;
                 }
-            } else Live._applyUpdates(c.updates, j);
+            } else Live._applyUpdates(d.updates, k);
         });
     },
     _applyUpdates: function(c, b) {

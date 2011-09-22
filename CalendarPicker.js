@@ -509,12 +509,15 @@ Class.mixin(Datepicker, "Arbiter", {
                 return true;
             }
             Toggler.show(this.root);
-            var l = this.textField.value.split("/");
-            if (l.length == 3) {
-                var k = parseInt(l[0], 10) - 1, h = parseInt(l[1], 10), m = parseInt(l[2], 10);
-                if (m < 100 && m >= 0) m += Math.floor((new Date).getFullYear() / 100) * 100;
-                if (m > 999 && k >= 0 && k < 12 && h > 0 && h <= (new Date(m, k + 1, 0)).getDate()) {
-                    this.setDate(m, k, h, false);
+            var m = this.textField.value.split("/");
+            if (m.length == 3) {
+                var k = parseInt(m[0], 10) - 1, h = parseInt(m[1], 10), n = parseInt(m[2], 10);
+                if (n < 100 && n >= 0) {
+                    var l = n + Math.floor((new Date).getFullYear() / 100) * 100;
+                    n = l > (new Date).getFullYear() + 1 ? l - 100 : l;
+                }
+                if (n > 999 && k >= 0 && k < 12 && h > 0 && h <= (new Date(n, k + 1, 0)).getDate()) {
+                    this.setDate(n, k, h, false);
                     this.calendarDate.setTime(this.timestamp.getTime());
                     this.draw();
                 }
@@ -567,6 +570,10 @@ Class.mixin(Datepicker, "Arbiter", {
                 c.timestamp.setTime(f.getTime());
             }
         }
+    },
+    setDateWithTimestamp: function(b) {
+        var a = new Date(b);
+        this.setDate(a.getFullYear(), a.getMonth(), a.getDate(), true);
     },
     showCalendar: function() {
         this.calendarDate.setTime(this.timestamp.getTime());
