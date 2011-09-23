@@ -1261,10 +1261,7 @@ var PhotoSnowbox = {
         this.deferUntilRepaint(this.closeCleanup.bind(this));
     },
     deferUntilRepaint: function(a) {
-        var b = window.mozRequestAnimationFrame;
-        if (b) {
-            b(a.shield());
-        } else a.defer(16);
+        a.defer(ua.firefox() ? 0 : 16);
     },
     closeCleanup: function() {
         CSS.removeClass(document.documentElement, "theaterMode");
